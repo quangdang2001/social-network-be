@@ -1,20 +1,26 @@
 package com.cnpm.socialmedia.controller;
 
+import com.cnpm.socialmedia.dto.CmtDTO;
 import com.cnpm.socialmedia.dto.MessageDTO;
 import com.cnpm.socialmedia.dto.PostDTO;
+import com.cnpm.socialmedia.model.Comment;
 import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Pageable;
 import java.text.ParseException;
-import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api")
@@ -50,7 +56,7 @@ public class PostController {
         post.setImgUrl(postDTO.getUrlImage());
         post.setUsers(userService.findById(postDTO.getUserId()));
         post.setCreateTime(new Date());
-        System.out.println(post.getCreateTime());
+        post.setPostShared(null);
         return postService.save(post);
     }
 
@@ -73,12 +79,34 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO(false,"Delete failed"));
         }
     }
-    @GetMapping("/post/user/{id}")
-    public ResponseEntity<?> getAllPostUser(@PathVariable Long id){
-        List<Post> posts = new ArrayList<>();
-        posts = postService.findPostOfUser(id);
+    @GetMapping("/post/user")
+    public ResponseEntity<?> getAllPostUser(@RequestParam Long userId,
+                                            @RequestParam(value = "page",defaultValue = "0") Integer page,
+                                            @RequestParam(value = "size",defaultValue = "10") Integer size){
+        List<Post> posts;
+        Pageable pageable = PageRequest.of(page,size);
+        posts = postService.findPostOfUser(userId,pageable);
+        posts.forEach(Post::getUsers);
         return ResponseEntity.ok(posts);
     }
+    @GetMapping("/post/homepage")
+    public ResponseEntity<?> getPostHomepage(@RequestParam Long userId,
+                                             @RequestParam(value = "page",defaultValue = "0") Integer page,
+                                             @RequestParam(value = "size",defaultValue = "10") Integer size){
+        List<PostDTO> posts;
+        Pageable pageable = PageRequest.of(page,size);
+        posts = postService.findPostHomePage(userId,pageable);
+        return ResponseEntity.ok(posts);
+    }
+
+    @PostMapping("/post/like/{id}")
+    public ResponseEntity<?> likePost(@PathVariable Long id){
+        Post post = postService.findPostById(id);
+        post.increaseLike();
+        postService.save(post);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 
 
 }

@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,8 @@ public class Post {
     private Date createTime;
     private Date updateTime;
 
+//    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Users users;
 
@@ -36,5 +39,9 @@ public class Post {
 
     private boolean isPostShare=false;
     @ManyToOne(fetch = FetchType.EAGER)
-    private Post postShared;
+    private Post postShared = null;
+
+    public void increaseLike(){
+        this.countLiked++;
+    }
 }

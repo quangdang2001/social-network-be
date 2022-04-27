@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,11 +18,23 @@ public class Comment {
     private Long id;
     private String content;
     private Date createTime;
+    private Integer countLike = 0;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Users users;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private PostShared postShared;
+
+    private boolean isCommentPost = true;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Comment comment;
+
+    public void increaseLike(){
+        this.countLike++;
+    }
+
 }

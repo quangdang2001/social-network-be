@@ -30,7 +30,7 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO, HttpServletRequest request){
-        Users users = userService.save(userDTO);
+        Users users = userService.saveRegister(userDTO);
         publisher.publishEvent(new RegisterCompleteEvent(
                 users,
                 applicationUrl(request)

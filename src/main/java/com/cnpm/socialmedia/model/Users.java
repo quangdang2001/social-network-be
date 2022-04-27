@@ -24,6 +24,7 @@ public class Users {
     private Long id;
     private String firstName;
     private String lastName;
+    private String imageUrl;
     @Column(nullable = false,unique = true)
     private String email;
     @NotNull
@@ -32,21 +33,15 @@ public class Users {
     private String bio;
     private String address;
     private int countReport = 0;
+    private int countFollower = 0;
+    private int countFollowing =0;
     private boolean enable = false;
-
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Users> followers;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<Users> followings;
 
     @JsonIgnore
     @OneToMany(mappedBy = "users",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notification> notifications;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "users",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    private List<Comment> comment;
+
+
+
 }

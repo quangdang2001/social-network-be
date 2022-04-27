@@ -1,24 +1,24 @@
 package com.cnpm.socialmedia.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Notification {
+@IdClass(UserFollowingID.class)
+public class UserFollowing implements Serializable {
     @Id
-    @GeneratedValue
-    private Long id;
-    private String content;
-    private String urlPost;
-    private boolean isSeen = false;
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Users users;
+    private Users userId;
+
+    @Id
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Users followingId;
+
 }

@@ -36,7 +36,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     }
 
     @Override
-    public Users save(UserDTO userDTO) {
+    public Users saveRegister(UserDTO userDTO) {
         Users user = new Users();
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
@@ -47,6 +47,11 @@ public class UserServiceIplm implements UserService, UserDetailsService {
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         return userRepo.save(user);
+    }
+
+    @Override
+    public Users save(Users users) {
+        return userRepo.save(users);
     }
 
     @Override

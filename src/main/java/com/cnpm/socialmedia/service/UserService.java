@@ -6,7 +6,8 @@ import com.cnpm.socialmedia.model.Users;
 
 public interface UserService {
     Users findById(Long id);
-    Users save(UserDTO userDTO);
+    Users saveRegister(UserDTO userDTO);
+    Users save(Users users);
     Users findUserByEmail(String email);
     void saveVerificationTokenForUser(String token,Users user);
 
