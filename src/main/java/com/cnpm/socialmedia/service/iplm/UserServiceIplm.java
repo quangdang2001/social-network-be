@@ -131,7 +131,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
 
     @Override
     public boolean checkIfValidOldPassword(Users user, String oldPassword) {
-        return passwordEncoder.matches(user.getPassword(),oldPassword);
+        return passwordEncoder.matches(oldPassword,user.getPassword());
     }
 
     @Override

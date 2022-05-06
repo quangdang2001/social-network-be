@@ -102,7 +102,7 @@ public class RegisterController {
         }
     }
 
-    @PostMapping("/changePassword")
+    @PutMapping("/changePassword")
     public String changePassword(@RequestBody PasswordDTO passwordDTO){
         Users user = userService.findUserByEmail(passwordDTO.getEmail());
         if(!userService.checkIfValidOldPassword(user,passwordDTO.getOldPassword())) {
