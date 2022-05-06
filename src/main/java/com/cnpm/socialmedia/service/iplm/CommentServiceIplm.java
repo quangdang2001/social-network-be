@@ -1,12 +1,21 @@
 package com.cnpm.socialmedia.service.iplm;
 
+import com.cnpm.socialmedia.dto.CmtDTO;
 import com.cnpm.socialmedia.model.Comment;
+import com.cnpm.socialmedia.model.Notification;
+import com.cnpm.socialmedia.model.Post;
+import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.CommentRepo;
+import com.cnpm.socialmedia.repo.NotificationRepo;
 import com.cnpm.socialmedia.service.CommentService;
+import com.cnpm.socialmedia.service.PostService;
+import com.cnpm.socialmedia.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +24,11 @@ import java.util.Optional;
 public class CommentServiceIplm implements CommentService {
 
     private final CommentRepo commentRepo;
-
+    private final NotificationRepo notificationRepo;
+    @Autowired
+    private PostService postService;
+    @Autowired
+    private UserService userService;
     @Override
     public Comment findById(Long id) {
         Optional<Comment> comment = commentRepo.findById(id);
@@ -40,5 +53,45 @@ public class CommentServiceIplm implements CommentService {
     @Override
     public List<Comment> findCmtByPostId(Long postId, Pageable pageable) {
         return commentRepo.findCommentByPost_Id(postId,pageable);
+    }
+
+    @Override
+    public void likeComment(Long cmtId) {
+        Comment comment = findById(cmtId);
+        comment.increaseLike();
+        save(comment);
+    }
+
+    @Override
+    public Comment cmtComment(CmtDTO cmtDTO) {
+        Comment comment = new Comment();
+        comment.setContent(cmtDTO.getContent());
+        comment.setCommentPost(false);
+        comment.setPost(postService.findPostById(cmtDTO.getPostId()));
+        save(comment);
+        return comment;
+    }
+
+    @Override
+    public Comment cmtPost(CmtDTO cmtDTO) {
+        Comment comment = new Comment();
+        Post post = postService.findPostById(cmtDTO.getPostId());
+        Users users = userService.findById(cmtDTO.getUserId());
+        comment.setContent(cmtDTO.getContent());
+        comment.setCreateTime(new Date());
+        comment.setPost(post);
+        comment.setUsers(userService.findById(cmtDTO.getUserId()));
+
+        String content = String.format("%s %s commented in your post.",users.getFirstName(),users.getLastName());
+
+        Notification notification = new Notification();
+        notification.setPost(post);
+        notification.setContent(content);
+        notification.setCreateTime(new Date());
+        notification.setUserReceiver(post.getUsers());
+        notification.setUserCreate(users);
+        notificationRepo.save(notification);
+
+        return comment;
     }
 }

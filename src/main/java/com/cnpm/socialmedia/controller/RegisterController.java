@@ -6,6 +6,7 @@ import com.cnpm.socialmedia.event.RegisterCompleteEvent;
 import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.service.email.EmailSenderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +30,9 @@ public class RegisterController {
     @Autowired
     private ApplicationEventPublisher publisher;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO, HttpServletRequest request){
         Users users = userService.saveRegister(userDTO);
@@ -37,7 +42,6 @@ public class RegisterController {
         ));
 
         return ResponseEntity.ok("Sent email");
-
     }
 
     @RequestMapping(value = "/verifyRegistration", method = RequestMethod.GET)
@@ -51,7 +55,7 @@ public class RegisterController {
 
     @GetMapping("/resendVerifyToken")
     public String resendVerificationToken(@RequestParam("email") String email,
-                                          HttpServletRequest request) {
+                                          HttpServletRequest request) throws MessagingException {
         VerificationToken verificationToken
                 = userService.SendToken(email);
         Users user = verificationToken.getUser();
@@ -60,13 +64,14 @@ public class RegisterController {
     }
 
     @PostMapping("/resetPassword")
-    public ResponseEntity<?> resetPassword(@RequestBody PasswordDTO passwordDTO, HttpServletRequest request) {
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordDTO passwordDTO, HttpServletRequest request) throws MessagingException {
         Users user = userService.findUserByEmail(passwordDTO.getEmail());
         if (user!= null && user.isEnable()){
             String token = "";
             token = userService.SendToken(passwordDTO.getEmail()).getToken();
 
             //Send email
+            emailSenderService.sendEmail(user.getEmail(),token,"Reset Password Token");
             log.info("Reset password: {}",
                     token);
             return ResponseEntity.ok("Sent email reset token");
@@ -107,13 +112,19 @@ public class RegisterController {
         userService.changePassword(user,passwordDTO.getNewPassword());
         return "Password Changed Successfully";
     }
-    private void resendVerificationTokenMail(Users user, String applicationUrl, VerificationToken verificationToken) {
+
+
+    private void resendVerificationTokenMail(Users user, String applicationUrl, VerificationToken verificationToken) throws MessagingException {
         String url =
                 applicationUrl
-                        + "/verifyRegistration?token="
-                        + verificationToken.getToken();
+                        + "/api/verifyRegistration?token="
+                        + verificationToken.getToken()
+                        + "&email="
+                        + user.getEmail();
 
         //sendVerificationEmail()
+        String format = String.format("Click the link to verify your account: %s",url);
+        emailSenderService.sendEmail(user.getEmail(),format, "Verify Registration");
         log.info("Click the link to verify your account: {}",
                 url);
     }

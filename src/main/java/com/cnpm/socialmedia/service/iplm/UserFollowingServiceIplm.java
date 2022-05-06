@@ -1,8 +1,10 @@
 package com.cnpm.socialmedia.service.iplm;
 
 import com.cnpm.socialmedia.dto.UserDTO;
+import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.UserFollowing;
 import com.cnpm.socialmedia.model.Users;
+import com.cnpm.socialmedia.repo.NotificationRepo;
 import com.cnpm.socialmedia.repo.UserFollowingRepo;
 import com.cnpm.socialmedia.service.UserFollowingService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -18,6 +21,7 @@ import java.util.List;
 public class UserFollowingServiceIplm implements UserFollowingService {
 
     private final UserFollowingRepo userFollowingRepo;
+    private final NotificationRepo notificationRepo;
     @Override
     public List<UserDTO> findAllFollowingUser(Long userId) {
         List<UserFollowing> userFollowings = userFollowingRepo.findAllByUserId_Id(userId);
@@ -62,6 +66,16 @@ public class UserFollowingServiceIplm implements UserFollowingService {
     @Override
     public UserFollowing save(Users users, Users following) {
         UserFollowing userFollowing = new UserFollowing(users,following);
+
+        Notification notification = new Notification();
+        String content = String.format("%s %s followed you.",users.getFirstName(), users.getLastName());
+        notification.setContent(content);
+        notification.setUserCreate(users);
+        notification.setUserReceiver(following);
+        notification.setCreateTime(new Date());
+
+        notificationRepo.save(notification);
+
         return userFollowingRepo.save(userFollowing);
     }
 

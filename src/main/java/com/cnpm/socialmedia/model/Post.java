@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,7 +42,11 @@ public class Post {
     @ManyToOne(fetch = FetchType.EAGER)
     private Post postShared = null;
 
+
     public void increaseLike(){
         this.countLiked++;
+    }
+    public void decreaseLike(){
+        this.countLiked--;
     }
 }

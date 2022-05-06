@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Data
@@ -16,9 +17,19 @@ public class Notification {
     @GeneratedValue
     private Long id;
     private String content;
-    private String urlPost;
+
+    private Date createTime;
+    @Convert(attributeName = "booleanToInteger")
     private boolean isSeen = false;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Users users;
+    private Users userReceiver;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Users userCreate;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
 }

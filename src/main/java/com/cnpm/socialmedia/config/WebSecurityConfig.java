@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-@Configurable
+@Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -62,16 +62,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                .antMatchers("/api/**").permitAll();
+                .antMatchers("/api/**","/ws/**").permitAll();
 
         http.addFilter(userAuthenticationFilter);
         http.addFilterBefore(new UserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-        http
-                .authorizeHttpRequests()
-                .antMatchers(new String[]{"/", "/not-restricted"}).permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .oauth2Login();
+//        http
+//                .authorizeHttpRequests()
+//                .antMatchers(new String[]{"/", "/not-restricted"}).permitAll()
+//                .anyRequest().authenticated()
+//                .and()
+//                .oauth2Login();
     }
 
     @Bean

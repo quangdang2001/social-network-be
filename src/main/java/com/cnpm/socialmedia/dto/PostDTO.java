@@ -41,4 +41,5 @@ public class PostDTO {
     }
 
     private UserDTO userDTO;
+    private boolean isLiked;
 }

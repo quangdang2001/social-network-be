@@ -15,10 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class Users {
 
-    public enum Sex{
-        MALE,FEMALE
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,10 +34,15 @@ public class Users {
     private boolean enable = false;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "users",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userReceiver",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notification> notifications;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "users",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comment> comments;
 
-
+    @JsonIgnore
+    @OneToMany(mappedBy = "sender",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<Message> messages;
 
 }

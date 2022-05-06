@@ -17,7 +17,7 @@ public class UserDTO {
     private String bio;
     private String address;
     private int gender;
-    private String matchingPassword;
+
 
     public UserDTO(Long id, String firstName, String lastName, String email, String imageUrl) {
         this.id = id;

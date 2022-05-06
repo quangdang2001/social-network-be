@@ -22,19 +22,11 @@ import java.util.List;
 @Slf4j
 public class CommentController {
     @Autowired
-    private PostService postService;
-    @Autowired
-    private UserService userService;
-    @Autowired
     private CommentService commentService;
 
     @PostMapping("/comment")
     public ResponseEntity<?> cmtPost(@RequestBody CmtDTO cmtDTO){
-        Comment comment = new Comment();
-        comment.setContent(cmtDTO.getContent());
-        comment.setCreateTime(new Date());
-        comment.setPost(postService.findPostById(cmtDTO.getPostId()));
-        comment.setUsers(userService.findById(cmtDTO.getUserId()));
+        Comment comment = commentService.cmtPost(cmtDTO);
         return ResponseEntity.ok(comment);
     }
     @GetMapping("/comment/post")
@@ -47,18 +39,12 @@ public class CommentController {
     }
     @PostMapping("/comment/like")
     public ResponseEntity<?> likeCmt(@RequestParam Long cmtId){
-        Comment comment = commentService.findById(cmtId);
-        comment.increaseLike();
-        commentService.save(comment);
+        commentService.likeComment(cmtId);
         return ResponseEntity.ok().build();
     }
     @PostMapping("/comment/child")
     public ResponseEntity<?> cmtChild(@RequestBody CmtDTO cmtDTO){
-        Comment comment = new Comment();
-        comment.setContent(cmtDTO.getContent());
-        comment.setCommentPost(false);
-        comment.setPost(postService.findPostById(cmtDTO.getPostId()));
-        commentService.save(comment);
+        Comment comment = commentService.cmtComment(cmtDTO);
         return ResponseEntity.ok(comment);
     }
 

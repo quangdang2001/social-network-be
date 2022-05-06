@@ -3,6 +3,8 @@ package com.cnpm.socialmedia.event.listener;
 import com.cnpm.socialmedia.event.RegisterCompleteEvent;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.service.email.EmailSenderService;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,10 @@ public class RegisterCompleteEventListener implements ApplicationListener<Regist
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+
+    @SneakyThrows
     @Override
     public void onApplicationEvent(RegisterCompleteEvent event) {
         Users user = event.getUser();
@@ -29,6 +35,7 @@ public class RegisterCompleteEventListener implements ApplicationListener<Regist
                         + "&token="+
                         token;
         // SendVerificationEmail
+        emailSenderService.sendEmail(user.getEmail(),url,"Verify Registration Email");
         System.out.println(url);
     }
 }
