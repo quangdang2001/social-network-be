@@ -55,19 +55,24 @@ public class CommentServiceIplm implements CommentService {
         return commentRepo.findCommentByPost_Id(postId,pageable);
     }
 
-    @Override
-    public void likeComment(Long cmtId) {
-        Comment comment = findById(cmtId);
-        comment.increaseLike();
-        save(comment);
-    }
+//    @Override
+//    public void likeComment(Long cmtId) {
+//        Comment comment = findById(cmtId);
+//        comment.increaseLike();
+//        save(comment);
+//    }
 
     @Override
     public Comment cmtComment(CmtDTO cmtDTO) {
         Comment comment = new Comment();
+        Comment cmtParent = findById(cmtDTO.getCmtId());
+
         comment.setContent(cmtDTO.getContent());
         comment.setCommentPost(false);
         comment.setPost(postService.findPostById(cmtDTO.getPostId()));
+        comment.setComment(cmtParent);
+        cmtParent.setCountReply(cmtParent.getCountReply()+1);
+        save(cmtParent);
         save(comment);
         return comment;
     }

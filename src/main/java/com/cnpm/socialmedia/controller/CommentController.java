@@ -37,11 +37,11 @@ public class CommentController {
         List<Comment> comments = commentService.findCmtByPostId(postId,pageRequest);
         return ResponseEntity.ok(comments);
     }
-    @PostMapping("/comment/like")
-    public ResponseEntity<?> likeCmt(@RequestParam Long cmtId){
-        commentService.likeComment(cmtId);
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/comment/like")
+//    public ResponseEntity<?> likeCmt(@RequestParam Long cmtId){
+//        commentService.likeComment(cmtId);
+//        return ResponseEntity.ok().build();
+//    }
     @PostMapping("/comment/child")
     public ResponseEntity<?> cmtChild(@RequestBody CmtDTO cmtDTO){
         Comment comment = commentService.cmtComment(cmtDTO);

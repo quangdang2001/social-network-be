@@ -23,7 +23,7 @@ public class Users {
     private String imageUrl;
     @Column(nullable = false,unique = true)
     private String email;
-    @NotNull
+    @Column(nullable = false)
     private String password;
     private int gender;
     private String bio;
@@ -32,7 +32,7 @@ public class Users {
     private int countFollower = 0;
     private int countFollowing =0;
     private boolean enable = false;
-
+    private String role = "ROLE_USER";
     @JsonIgnore
     @OneToMany(mappedBy = "userReceiver",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notification> notifications;

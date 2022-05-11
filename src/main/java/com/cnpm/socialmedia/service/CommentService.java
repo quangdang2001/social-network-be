@@ -13,7 +13,7 @@ public interface CommentService {
     List<Comment> findCommentsByUsers_Id(Long userId);
     List<Comment> findCmtByPostId(Long postId, Pageable pageable);
     /////
-    void likeComment(Long cmtId);
+//    void likeComment(Long cmtId);
     Comment cmtComment(CmtDTO cmtDTO);
     Comment cmtPost(CmtDTO cmtDTO);
 

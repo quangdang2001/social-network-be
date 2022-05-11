@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.controller.ws;
 
+import com.cnpm.socialmedia.controller.ws.Payload.Like;
 import com.cnpm.socialmedia.model.Message;
 
 import com.cnpm.socialmedia.model.Notification;
@@ -26,9 +27,8 @@ public class NotificationControllerWS {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/likePost")
-    public ResponseEntity<?> sendNotifilikePost(@Payload Long postId,
-                                                @Payload Long userId){
-        Notification notification = postService.likePost(postId,userId);
+    public ResponseEntity<?> sendNotifilikePost(@Payload Like like){
+        Notification notification = postService.likePost(like.getPostId(),like.getUserId());
         if (notification!= null){
             Long count = notificationService.countNotSeenNotifi(notification.getUserReceiver().getId());
             simpMessagingTemplate.

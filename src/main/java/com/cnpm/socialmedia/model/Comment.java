@@ -18,7 +18,6 @@ public class Comment {
     private Long id;
     private String content;
     private Date createTime;
-    private Integer countLike = 0;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Users users;
@@ -28,13 +27,13 @@ public class Comment {
     private Post post;
 
     private boolean isCommentPost = true;
-
+    private Integer countReply = 0;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Comment comment;
 
-    public void increaseLike(){
-        this.countLike++;
-    }
+//    public void increaseLike(){
+//        this.countLike++;
+//    }
 
 }
