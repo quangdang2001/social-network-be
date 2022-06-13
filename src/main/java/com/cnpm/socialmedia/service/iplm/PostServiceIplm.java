@@ -16,11 +16,13 @@ import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserFollowingService;
 import com.cnpm.socialmedia.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -155,7 +157,6 @@ public class PostServiceIplm implements PostService {
     public PostDTO findPostDTOById(Long id) {
         Post post = findPostById(id);
         PostDTO postDTO = new PostDTO();
-
         postDTO.setUserId(post.getUsers().getId());
         postDTO.setId(post.getId());
         postDTO.setContent(post.getContent());
@@ -177,6 +178,7 @@ public class PostServiceIplm implements PostService {
         post.setUsers(userService.findById(postDTO.getUserId()));
         post.setCreateTime(new Date());
         post.setPostShared(null);
+        save(post);
         return post;
     }
 

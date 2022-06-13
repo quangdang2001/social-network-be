@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.controller;
 
 import com.cnpm.socialmedia.dto.PasswordDTO;
+import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.event.RegisterCompleteEvent;
 import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
@@ -41,26 +42,30 @@ public class RegisterController {
                 applicationUrl(request)
         ));
 
-        return ResponseEntity.ok("Sent email");
+        return ResponseEntity.ok(new ResponseDTO(true,"Sent email",
+                null));
     }
 
     @RequestMapping(value = "/verifyRegistration", method = RequestMethod.GET)
-    public String verifyRegistration(@RequestParam("email") String email, @RequestParam("token") String token) {
+    public ResponseEntity<?> verifyRegistration(@RequestParam("email") String email, @RequestParam("token") String token) {
         String result = userService.validateVerificationToken(email,token);
         if(result.equalsIgnoreCase("valid")) {
-            return "User Verified Successfully";
+            return ResponseEntity.ok(new ResponseDTO(true,"Success",
+                    null));
         }
-        return "Bad User";
+        return ResponseEntity.ok(new ResponseDTO(false,"Bad user",
+                null));
     }
 
     @GetMapping("/resendVerifyToken")
-    public String resendVerificationToken(@RequestParam("email") String email,
+    public ResponseEntity<?> resendVerificationToken(@RequestParam("email") String email,
                                           HttpServletRequest request) throws MessagingException {
         VerificationToken verificationToken
                 = userService.SendToken(email);
         Users user = verificationToken.getUser();
         resendVerificationTokenMail(user, applicationUrl(request), verificationToken);
-        return "Verification Link Sent";
+        return ResponseEntity.ok(new ResponseDTO(true,"Verification Link Sent",
+                null));
     }
 
     @PostMapping("/resetPassword")
@@ -74,11 +79,11 @@ public class RegisterController {
             emailSenderService.sendEmail(user.getEmail(),token,"Reset Password Token");
             log.info("Reset password: {}",
                     token);
-            return ResponseEntity.ok("Sent email reset token");
+            return ResponseEntity.ok(new ResponseDTO(true,"Sent email reset token",
+                    null));
         }
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not found email");
-
+        return ResponseEntity.badRequest().body(new ResponseDTO(false,"Not found email",
+                null));
     }
     @PostMapping("/savePassword")
     public ResponseEntity<?> savePassword(@RequestParam("token") String token,
@@ -87,30 +92,36 @@ public class RegisterController {
 
         String result = userService.validatePasswordResetToken(passwordDTO.getEmail(), token);
         if(!result.equalsIgnoreCase("valid")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token");
+
+            return ResponseEntity.badRequest().body(new ResponseDTO(false,"Invalid token",
+                    null));
         }
         Optional<Users> user = Optional.ofNullable(userService.findUserByEmail(passwordDTO.getEmail()));
         if(user.isPresent()) {
             if (!user.get().isEnable()){
-               return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email not verify");
+                return ResponseEntity.ok().body(new ResponseDTO(false,"Email not verify",
+                        null));
             }
             userService.changePassword(user.get(), passwordDTO.getNewPassword());
-            return ResponseEntity.ok("Change password successfully");
+            return ResponseEntity.ok().body(new ResponseDTO(true,"Change password successfully",
+                    null));
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("email not found");
-
+            return ResponseEntity.ok().body(new ResponseDTO(false,"email not found",
+                    null));
         }
     }
 
     @PutMapping("/changePassword")
-    public String changePassword(@RequestBody PasswordDTO passwordDTO){
+    public ResponseEntity<?> changePassword(@RequestBody PasswordDTO passwordDTO){
         Users user = userService.findUserByEmail(passwordDTO.getEmail());
         if(!userService.checkIfValidOldPassword(user,passwordDTO.getOldPassword())) {
-            return "Invalid Old Password";
+            return ResponseEntity.ok().body(new ResponseDTO(false,"Invalid Old Password",
+                    null));
         }
         //Save New Password
         userService.changePassword(user,passwordDTO.getNewPassword());
-        return "Password Changed Successfully";
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Password Changed Successfully",
+                null));
     }
 
 

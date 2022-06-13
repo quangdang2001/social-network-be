@@ -30,7 +30,7 @@ public class Comment {
     private Integer countReply = 0;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private Comment comment;
+    private Comment commentParrent;
 
 //    public void increaseLike(){
 //        this.countLike++;

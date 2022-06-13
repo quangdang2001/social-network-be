@@ -70,7 +70,7 @@ public class CommentServiceIplm implements CommentService {
         comment.setContent(cmtDTO.getContent());
         comment.setCommentPost(false);
         comment.setPost(postService.findPostById(cmtDTO.getPostId()));
-        comment.setComment(cmtParent);
+        comment.setCommentParrent(cmtParent);
         cmtParent.setCountReply(cmtParent.getCountReply()+1);
         save(cmtParent);
         save(comment);

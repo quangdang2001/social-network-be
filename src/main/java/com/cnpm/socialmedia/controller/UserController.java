@@ -3,6 +3,7 @@ package com.cnpm.socialmedia.controller;
 import com.cloudinary.utils.ObjectUtils;
 import com.cnpm.socialmedia.dto.NotificationDTO;
 import com.cnpm.socialmedia.dto.PersonalPage;
+import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.model.UserFollowing;
 import com.cnpm.socialmedia.model.Users;
@@ -59,21 +60,21 @@ public class UserController {
             userService.save(users);
             userService.save(userFollowed);
         }
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                null));
     }
     @GetMapping("/user/following")
     public ResponseEntity<?> getFollowing(@RequestParam Long userId){
         List<UserDTO> userDTOList = userFollowingService.findAllFollowingUser(userId);
-
-        return ResponseEntity.ok(userDTOList);
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                userDTOList));
     }
 
     @GetMapping("/user/follower")
     public ResponseEntity<?> getFollower(@RequestParam Long userId){
         List<UserDTO> userDTOList = userFollowingService.findAllFollowerUser(userId);
-
-        return ResponseEntity.ok(userDTOList);
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                userDTOList));
     }
 
     @GetMapping("/user/personalPage")
@@ -94,7 +95,10 @@ public class UserController {
         personalPage.setCountFollower(users.getCountFollower());
         personalPage.setCountFollowing(users.getCountFollowing());
         personalPage.setFollow(checkFollowing != null);
-        return ResponseEntity.ok(personalPage);
+
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                personalPage));
+
     }
 
     @GetMapping("/user/notification")
@@ -102,7 +106,9 @@ public class UserController {
                                         @RequestParam(defaultValue = "0") Integer page,
                                         @RequestParam(defaultValue = "10") Integer size){
         List<NotificationDTO> notificationDTOS = notificationService.findNotificationByUserId(userId,page,size);
-        return ResponseEntity.ok(notificationDTOS);
+
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                notificationDTOS));
     }
 
 
@@ -125,13 +131,17 @@ public class UserController {
         users.setImageUrl(imgUrl);
         userService.save(users);
 
-        return ResponseEntity.ok(imgUrl);
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                imgUrl));
     }
 
     @GetMapping("/user")
     private ResponseEntity<?> getUser(@RequestParam Long userId){
         Users users = userService.findById(userId);
-        return ResponseEntity.ok(users);
+
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                users));
+
     }
 
 }

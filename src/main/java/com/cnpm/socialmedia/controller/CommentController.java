@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.controller;
 
 import com.cnpm.socialmedia.dto.CmtDTO;
+import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.model.Comment;
 import com.cnpm.socialmedia.service.CommentService;
 import com.cnpm.socialmedia.service.PostService;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +29,8 @@ public class CommentController {
     @PostMapping("/comment")
     public ResponseEntity<?> cmtPost(@RequestBody CmtDTO cmtDTO){
         Comment comment = commentService.cmtPost(cmtDTO);
-        return ResponseEntity.ok(comment);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
+                comment));
     }
     @GetMapping("/comment/post")
     public ResponseEntity<?> getCommentPost(@RequestParam Long postId,
@@ -35,7 +38,9 @@ public class CommentController {
                                             @RequestParam(defaultValue = "5") Integer size){
         Pageable pageRequest = PageRequest.of(page,size);
         List<Comment> comments = commentService.findCmtByPostId(postId,pageRequest);
-        return ResponseEntity.ok(comments);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
+                comments));
     }
 //    @PostMapping("/comment/like")
 //    public ResponseEntity<?> likeCmt(@RequestParam Long cmtId){
@@ -45,7 +50,8 @@ public class CommentController {
     @PostMapping("/comment/child")
     public ResponseEntity<?> cmtChild(@RequestBody CmtDTO cmtDTO){
         Comment comment = commentService.cmtComment(cmtDTO);
-        return ResponseEntity.ok(comment);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
+                comment));
     }
 
 }

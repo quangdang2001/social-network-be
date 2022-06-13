@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -44,26 +45,25 @@ import java.util.Map;
 public class PostController {
     @Autowired
     private PostService postService;
-    @Autowired
-    private UserService userService;
+
     @Autowired
     private CloudinaryUpload cloudinaryUpload;
-    @Autowired
-    private NotificationService notificationService;
 
 
     @GetMapping("/post/{id}")
     public ResponseEntity<?> getPostById(@PathVariable Long id) throws ParseException {
         PostDTO postDTO = postService.findPostDTOById(id);
 
-        return ResponseEntity.ok(postDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
+                postDTO));
     }
     @PostMapping(path = "/post")
-    public Post savePost(@RequestBody PostDTO postDTO)  {
+    public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO)  {
 
         Post post = postService.saveNewPost(postDTO);
 
-        return postService.save(post);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
+                post));
     }
 
     @PutMapping(path = "/post/upImg",consumes = MediaType.ALL_VALUE,
@@ -79,25 +79,28 @@ public class PostController {
             Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file),params);
             post.setImgUrl((String) map.get("secure_url"));
             postService.save(post);
-            return ResponseEntity.ok(map.get("secure_url"));
+//            return ResponseEntity.ok(map.get("secure_url"));
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
+                    map.get("secure_url")));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(false,"Failed",null));
     }
 
     @PutMapping("/post")
     public ResponseEntity<?> updatePost(@RequestBody PostDTO postDTO){
         Post post = postService.updatePost(postDTO);
-        return ResponseEntity.ok(new ResponseDTO(true,"Update successfully"));
+        return ResponseEntity.ok(new ResponseDTO(true,"Update successfully",post));
     }
     @DeleteMapping("/post/{id}")
     public ResponseEntity<?> deletePost(@PathVariable Long id){
         try {
             postService.deletePostById(id);
-            return ResponseEntity.ok(new ResponseDTO(true,"Delete successfully"));
+            return ResponseEntity.ok(new ResponseDTO(true,"Delete successfully",null));
         }
         catch (Exception e){
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO(false,"Delete failed"));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(false,e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                    body(new ResponseDTO(false,e.getMessage(),null));
 
         }
     }
@@ -108,7 +111,7 @@ public class PostController {
         List<PostDTO> posts;
         posts = postService.findPostOfUser(userId,page,size);
 
-        return ResponseEntity.ok(posts);
+        return ResponseEntity.ok(new ResponseDTO(true,"Success",posts));
     }
     @GetMapping("/post/homepage")
     public ResponseEntity<?> getPostHomepage(@RequestParam Long userId,
@@ -116,14 +119,14 @@ public class PostController {
                                              @RequestParam(value = "size",defaultValue = "10") Integer size){
         List<PostDTO> posts;
         posts = postService.findPostHomePage(userId, page, size);
-        return ResponseEntity.ok(posts);
+        return ResponseEntity.ok(new ResponseDTO(true,"Success",posts));
     }
 
     @PostMapping("/post/like")
     public ResponseEntity<?> likePost(@RequestParam Long postId,
                                       @RequestParam Long userId){
         postService.likePost(postId,userId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",null));
     }
 
 
