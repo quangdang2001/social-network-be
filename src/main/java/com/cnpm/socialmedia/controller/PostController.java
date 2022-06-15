@@ -43,6 +43,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 public class PostController {
+
     @Autowired
     private PostService postService;
 
