@@ -78,7 +78,7 @@ public class UserController {
     }
 
     @GetMapping("/user/personalPage")
-    public ResponseEntity<?> seepersonalPage(@RequestParam Long userId,
+    public ResponseEntity<?> seePersonalPage(@RequestParam Long userId,
                                              @RequestParam Long personalPageId){
         Users users = userService.findById(personalPageId);
         UserFollowing checkFollowing = userFollowingService.checkFollow(userId,personalPageId);
