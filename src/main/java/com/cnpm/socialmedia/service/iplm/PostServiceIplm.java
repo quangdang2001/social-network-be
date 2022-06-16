@@ -110,31 +110,48 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
-    public Notification likePost(Long postId, Long userId) {
-        boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(postId,userId) != null;
+    public Boolean likePost(Long postId, Long userId) {
         Post post = findPostById(postId);
-        PostLike postLike = new PostLike(post, userService.findById(userId));
-        if (!check) {
-            post.increaseLike();
-            postLikeRepo.save(postLike);
-            save(post);
-            Notification notification = new Notification();
-            Users users = userService.findById(userId);
-            String content = String.format("%s %s liked your post.", users.getLastName(), users.getFirstName());
-            notification.setContent(content);
-            notification.setUserReceiver(post.getUsers());
-            notification.setUserCreate(users);
-            notification.setPost(post);
-            notification.setCreateTime(new Date());
+        Users users = userService.findById(userId);
+        if (post!=null && users!=null) {
+            boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(postId, userId) != null;
 
-            notificationRepo.save(notification);
-            return notification;
+            PostLike postLike = new PostLike(post,users);
+            if (!check) {
+                post.increaseLike();
+                postLikeRepo.save(postLike);
+                save(post);
+                Notification notification = new Notification();
+                String content = String.format("%s %s liked your post.", users.getLastName(), users.getFirstName());
+                notification.setContent(content);
+                notification.setUserReceiver(post.getUsers());
+                notification.setUserCreate(users);
+                notification.setPost(post);
+                notification.setCreateTime(new Date());
 
-        }else {
-            post.decreaseLike();
-            postLikeRepo.delete(postLike);
-            return null;
+                notificationRepo.save(notification);
+                return true;
+
+            } else {
+                post.decreaseLike();
+                postLikeRepo.delete(postLike);
+                return true;
+            }
         }
+        return false;
+    }
+
+    @Override
+    public Boolean reportPost(Long postId) {
+        Post post = findPostById(postId);
+        if (post!=null){
+            post.setCountReported(post.getCountReported()+1);
+            if (post.getCountReported()>50){
+                postRepo.deleteById(postId);
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override

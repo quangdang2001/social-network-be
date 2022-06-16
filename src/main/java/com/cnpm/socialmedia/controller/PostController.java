@@ -7,12 +7,9 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cnpm.socialmedia.dto.PostDTO;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 
-import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.service.Cloudinary.CloudinaryUpload;
-import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.PostService;
-import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Convert;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -126,8 +119,14 @@ public class PostController {
     @PostMapping("/post/like")
     public ResponseEntity<?> likePost(@RequestParam Long postId,
                                       @RequestParam Long userId){
-        postService.likePost(postId,userId);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",null));
+        Boolean check = postService.likePost(postId,userId);
+        if (check) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "Success", null));
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(false, "Not found post", null));
+
+        }
     }
 
 

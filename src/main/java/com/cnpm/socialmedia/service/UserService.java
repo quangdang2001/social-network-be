@@ -21,4 +21,6 @@ public interface UserService {
     void changePassword(Users user, String newPassword);
 
     boolean checkIfValidOldPassword(Users user, String oldPassword);
+
+    Boolean reportUser(Long userId);
 }

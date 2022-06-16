@@ -1,16 +1,21 @@
 package com.cnpm.socialmedia.service.iplm;
 
 import com.cnpm.socialmedia.dto.MessageDTO;
+import com.cnpm.socialmedia.dto.MessageSendDTO;
 import com.cnpm.socialmedia.model.Message;
+import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.MessageRepo;
 import com.cnpm.socialmedia.service.MessageService;
+import com.cnpm.socialmedia.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -18,9 +23,21 @@ import java.util.List;
 public class MessageServiceIplm implements MessageService {
 
     private final MessageRepo messageRepo;
+    @Autowired
+    private UserService userService;
+
 
     @Override
-    public Message sendMessage(Message message) {
+    public Message sendMessage(MessageSendDTO messageSendDTO) {
+        Message message = new Message();
+        Users usersSend = userService.findById(messageSendDTO.getUserSenderId());
+        Users usersReceiver = userService.findById(messageSendDTO.getUserReceiverId());
+        if (usersSend != null && usersReceiver !=null) {
+            message.setMessage(messageSendDTO.getContent());
+            message.setCreateTime(new Date());
+            message.setSender(usersSend);
+            message.setReceiver(usersReceiver);
+        }
         return messageRepo.save(message);
     }
 
