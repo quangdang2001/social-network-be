@@ -23,9 +23,9 @@ public class EmailSenderService {
 
         mimeMailMessage.setContent(body,"text/html");
 
-        helper.setFrom("ledat3002@gmail.com");
+        helper.setFrom("socialnetwork99.me@gmail.com");
         helper.setTo(toEmail);
-        helper.setText(body);
+        helper.setText(body,true);
         helper.setSubject(subject);
 
         mailSender.send(mimeMailMessage);

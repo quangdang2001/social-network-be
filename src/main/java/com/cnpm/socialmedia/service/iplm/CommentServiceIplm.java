@@ -15,12 +15,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CommentServiceIplm implements CommentService {
 
@@ -66,10 +68,13 @@ public class CommentServiceIplm implements CommentService {
     public Comment cmtComment(CmtDTO cmtDTO) {
         Comment comment = new Comment();
         Comment cmtParent = findById(cmtDTO.getCmtId());
-
+        Post post = postService.findPostById(cmtDTO.getPostId());
+        Users users = userService.findById(cmtDTO.getUserId());
         comment.setContent(cmtDTO.getContent());
         comment.setCommentPost(false);
-        comment.setPost(postService.findPostById(cmtDTO.getPostId()));
+        comment.setUsers(users);
+        comment.setPost(post);
+        comment.setCreateTime(new Date());
         comment.setCommentParrent(cmtParent);
         cmtParent.setCountReply(cmtParent.getCountReply()+1);
         save(cmtParent);
@@ -85,8 +90,8 @@ public class CommentServiceIplm implements CommentService {
         comment.setContent(cmtDTO.getContent());
         comment.setCreateTime(new Date());
         comment.setPost(post);
-        comment.setUsers(userService.findById(cmtDTO.getUserId()));
-
+        comment.setUsers(users);
+        commentRepo.save(comment);
         String content = String.format("%s %s commented in your post.",users.getFirstName(),users.getLastName());
         notificationService.sendNotificationPost(post,users,content);
 

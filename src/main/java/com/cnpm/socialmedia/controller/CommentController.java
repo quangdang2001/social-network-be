@@ -1,8 +1,10 @@
 package com.cnpm.socialmedia.controller;
 
 import com.cnpm.socialmedia.dto.CmtDTO;
+import com.cnpm.socialmedia.dto.CmtResponse;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.model.Comment;
+import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.CommentService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,8 +32,12 @@ public class CommentController {
     @PostMapping("/comment")
     public ResponseEntity<?> cmtPost(@RequestBody CmtDTO cmtDTO){
         Comment comment = commentService.cmtPost(cmtDTO);
+        Users users = comment.getUsers();
+
+        CmtResponse cmtResponse = convertCmtToRes(users,comment);
+
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
-                comment));
+                cmtResponse));
     }
     @GetMapping("/comment/post")
     public ResponseEntity<?> getCommentPost(@RequestParam Long postId,
@@ -38,9 +45,16 @@ public class CommentController {
                                             @RequestParam(defaultValue = "5") Integer size){
         Pageable pageRequest = PageRequest.of(page,size);
         List<Comment> comments = commentService.findCmtByPostId(postId,pageRequest);
+        List<CmtResponse> cmtResponses = new ArrayList<>();
+        comments.forEach(comment -> {
+            Users users = comment.getUsers();
+
+            CmtResponse cmtResponse =convertCmtToRes(users,comment);
+            cmtResponses.add(cmtResponse);
+        });
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
-                comments));
+                cmtResponses));
     }
 //    @PostMapping("/comment/like")
 //    public ResponseEntity<?> likeCmt(@RequestParam Long cmtId){
@@ -50,8 +64,25 @@ public class CommentController {
     @PostMapping("/comment/child")
     public ResponseEntity<?> cmtChild(@RequestBody CmtDTO cmtDTO){
         Comment comment = commentService.cmtComment(cmtDTO);
+        Users users = comment.getUsers();
+        CmtResponse cmtResponse = convertCmtToRes(users,comment);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
-                comment));
+                cmtResponse));
+    }
+
+    private CmtResponse convertCmtToRes(Users users, Comment comment){
+        CmtResponse.User user = new CmtResponse.User(users.getId(),users.getFirstName(),users.getLastName(),
+                users.getImageUrl());
+        CmtResponse cmtResponse = CmtResponse.builder()
+                .content(comment.getContent())
+                .createTime(comment.getCreateTime())
+                .cmtId(comment.getId())
+                .userCmt(user)
+                .build();
+        if (comment.getCommentParrent()!=null){
+            cmtResponse.setCmtParrentId(comment.getCommentParrent().getId());
+        }
+        return cmtResponse;
     }
 
 }
