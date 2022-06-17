@@ -14,14 +14,12 @@ public class PostDTO {
     private String content;
     private String urlImage;
     private Long userId;
-
     private int countLiked = 0;
     private int countCmted = 0;
     private int countShated = 0;
     private int countReported = 0;
     private Date createTime;
     private Date updateTime;
-
     private boolean isPostShared;
     private Long postSharedId;
 

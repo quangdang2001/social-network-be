@@ -73,7 +73,6 @@ public class PostController {
             Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file),params);
             post.setImgUrl((String) map.get("secure_url"));
             postService.save(post);
-//            return ResponseEntity.ok(map.get("secure_url"));
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                     map.get("secure_url")));
         }
