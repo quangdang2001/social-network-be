@@ -8,6 +8,7 @@ import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.CommentRepo;
 import com.cnpm.socialmedia.repo.NotificationRepo;
 import com.cnpm.socialmedia.service.CommentService;
+import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,10 @@ import java.util.Optional;
 public class CommentServiceIplm implements CommentService {
 
     private final CommentRepo commentRepo;
-    private final NotificationRepo notificationRepo;
-    @Autowired
-    private PostService postService;
-    @Autowired
-    private UserService userService;
+    private final PostService postService;
+    private final UserService userService;
+    private final NotificationService notificationService;
+
     @Override
     public Comment findById(Long id) {
         Optional<Comment> comment = commentRepo.findById(id);
@@ -88,14 +88,7 @@ public class CommentServiceIplm implements CommentService {
         comment.setUsers(userService.findById(cmtDTO.getUserId()));
 
         String content = String.format("%s %s commented in your post.",users.getFirstName(),users.getLastName());
-
-        Notification notification = new Notification();
-        notification.setPost(post);
-        notification.setContent(content);
-        notification.setCreateTime(new Date());
-        notification.setUserReceiver(post.getUsers());
-        notification.setUserCreate(users);
-        notificationRepo.save(notification);
+        notificationService.sendNotificationPost(post,users,content);
 
         return comment;
     }

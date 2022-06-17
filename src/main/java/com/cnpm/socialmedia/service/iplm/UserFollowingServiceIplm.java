@@ -6,6 +6,7 @@ import com.cnpm.socialmedia.model.UserFollowing;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.NotificationRepo;
 import com.cnpm.socialmedia.repo.UserFollowingRepo;
+import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.UserFollowingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import java.util.List;
 public class UserFollowingServiceIplm implements UserFollowingService {
 
     private final UserFollowingRepo userFollowingRepo;
-    private final NotificationRepo notificationRepo;
+    private final NotificationService notificationService;
     @Override
     public List<UserDTO> findAllFollowingUser(Long userId) {
         List<UserFollowing> userFollowings = userFollowingRepo.findAllByUserId_Id(userId);
@@ -66,17 +67,10 @@ public class UserFollowingServiceIplm implements UserFollowingService {
     @Override
     public UserFollowing save(Users users, Users following) {
         UserFollowing userFollowing = new UserFollowing(users,following);
-
-        Notification notification = new Notification();
         String content = String.format("%s %s followed you.",users.getFirstName(), users.getLastName());
-        notification.setContent(content);
-        notification.setUserCreate(users);
-        notification.setUserReceiver(following);
-        notification.setCreateTime(new Date());
-
-        notificationRepo.save(notification);
-
-        return userFollowingRepo.save(userFollowing);
+        notificationService.sendNotificationFollow(users,following,content);
+        UserFollowing userFollowing1 = userFollowingRepo.save(userFollowing);
+        return userFollowing1;
     }
 
     @Override

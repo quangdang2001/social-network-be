@@ -61,8 +61,8 @@ public class PostController {
     }
 
     @PutMapping(path = "/post/upImg",consumes = MediaType.ALL_VALUE,
-            produces = MediaType.ALL_VALUE)
-    public ResponseEntity<?> uPimg(@RequestParam(value = "img")MultipartFile file,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> upImg(@RequestParam(value = "img")MultipartFile file,
                                    @RequestParam Long postId) throws IOException {
         Post post = postService.findPostById(postId);
         if (!file.isEmpty()){

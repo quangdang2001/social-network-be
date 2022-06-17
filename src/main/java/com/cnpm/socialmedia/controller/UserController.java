@@ -124,9 +124,10 @@ public class UserController {
                 "folder", "avatars"
         );
         Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file),params);
-        cloudinaryUpload.cloudinary().uploader().destroy("avatars/"+cloudinaryUpload.getPublicId(imgUrl)
-                , ObjectUtils.asMap("resource_type", "image"));
-
+        if (imgUrl!= null) {
+            cloudinaryUpload.cloudinary().uploader().destroy("avatars/" + cloudinaryUpload.getPublicId(imgUrl)
+                    , ObjectUtils.asMap("resource_type", "image"));
+        }
         imgUrl = (String) map.get("secure_url");
         users.setImageUrl(imgUrl);
         userService.save(users);

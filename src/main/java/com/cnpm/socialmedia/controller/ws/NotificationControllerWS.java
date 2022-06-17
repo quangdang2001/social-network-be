@@ -28,13 +28,13 @@ public class NotificationControllerWS {
 
     @MessageMapping("/likePost")
     public ResponseEntity<?> sendNotifilikePost(@Payload Like like){
-        Notification notification = postService.likePost(like.getPostId(),like.getUserId());
-        if (notification!= null){
-            Long count = notificationService.countNotSeenNotifi(notification.getUserReceiver().getId());
-            simpMessagingTemplate.
-                    convertAndSendToUser(notification.getUserReceiver().getId().toString(),"/queue/private",count);
-            return ResponseEntity.ok(count);
-        }
+//        Notification notification = postService.likePost(like.getPostId(),like.getUserId());
+//        if (notification!= null){
+//            Long count = notificationService.countNotSeenNotifi(notification.getUserReceiver().getId());
+//            simpMessagingTemplate.
+//                    convertAndSendToUser(notification.getUserReceiver().getId().toString(),"/queue/private",count);
+//            return ResponseEntity.ok(count);
+//        }
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

@@ -76,4 +76,37 @@ public class NotificationServiceIplm implements NotificationService {
         return count;
 
     }
+
+    @Override
+    public Boolean sendNotificationPost(Post post, Users senderId,String content) {
+        try {
+            Notification notification = new Notification();
+            notification.setContent(content);
+            notification.setUserReceiver(post.getUsers());
+            notification.setUserCreate(senderId);
+            notification.setPost(post);
+            notification.setCreateTime(new Date());
+            notificationRepo.save(notification);
+        }
+        catch (Exception e){
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean sendNotificationFollow(Users user, Users userReceiver, String content) {
+        try {
+            Notification notification = new Notification();
+            notification.setContent(content);
+            notification.setUserCreate(user);
+            notification.setUserReceiver(userReceiver);
+            notification.setCreateTime(new Date());
+
+            notificationRepo.save(notification);
+        }catch (Exception e){
+            return false;
+        }
+        return true;
+    }
 }

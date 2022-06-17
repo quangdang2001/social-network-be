@@ -21,10 +21,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MessageServiceIplm implements MessageService {
-
     private final MessageRepo messageRepo;
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
 
     @Override
