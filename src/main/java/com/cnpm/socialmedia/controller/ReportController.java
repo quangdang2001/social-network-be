@@ -1,22 +1,27 @@
 package com.cnpm.socialmedia.controller;
 
 import com.cnpm.socialmedia.dto.ResponseDTO;
+import com.cnpm.socialmedia.dto.UserDTO;
+import com.cnpm.socialmedia.model.Post;
+import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 public class ReportController {
 
-    @Autowired
-    private PostService postService;
-    @Autowired
-    private UserService userService;
-
+    private final PostService postService;
+    private final UserService userService;
 
     @PutMapping("/report/post/{postId}")
     private ResponseEntity<?> reportPost(@PathVariable Long postId){
@@ -33,5 +38,27 @@ public class ReportController {
             return ResponseEntity.ok(new ResponseDTO(true,"Report success",null));
         }
         return ResponseEntity.ok(new ResponseDTO(false,"Report failed",null));
+    }
+    @GetMapping("/report/user")
+    private ResponseEntity<?> getUserReported(){
+        List<Users> users = userService.findUserReported();
+        List<UserDTO> userDTOList = new ArrayList<>();
+        UserDTO userDTO = new UserDTO();
+        users.forEach(user ->{
+            userDTO.setId(user.getId());
+            userDTO.setFirstName(user.getFirstName());
+            userDTO.setLastName(user.getLastName());
+            userDTO.setEmail(userDTO.getEmail());
+            userDTO.setCountReport(user.getCountReport());
+            userDTO.setImageUrl(user.getImageUrl());
+            userDTOList.add(userDTO);
+        });
+        return ResponseEntity.ok(new ResponseDTO(false,"Success",userDTOList));
+    }
+    @GetMapping("/report/post")
+    private ResponseEntity<?> getPostReported(){
+        List<Post> posts = postService.findPostReported();
+        return ResponseEntity.ok(new ResponseDTO(false,"Success",posts));
+
     }
 }

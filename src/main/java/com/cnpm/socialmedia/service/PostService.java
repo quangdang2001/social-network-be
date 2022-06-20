@@ -24,4 +24,6 @@ public interface PostService {
     List<PostDTO> findPostOfUser(Long userId, Integer page, Integer size);
     Boolean likePost(Long postId, Long userId);
     Boolean reportPost(Long postId);
+
+    List<Post> findPostReported();
 }

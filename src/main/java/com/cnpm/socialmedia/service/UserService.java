@@ -4,6 +4,9 @@ import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.cnpm.socialmedia.model.Users;
 
+import java.util.List;
+import java.util.Set;
+
 public interface UserService {
     Users findById(Long id);
     Users saveRegister(UserDTO userDTO);
@@ -23,4 +26,8 @@ public interface UserService {
     boolean checkIfValidOldPassword(Users user, String oldPassword);
 
     Boolean reportUser(Long userId);
+
+    List<Users> findUserReported();
+
+    Set<Users> searchUser(String keyword);
 }

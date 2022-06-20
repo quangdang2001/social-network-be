@@ -13,6 +13,6 @@ import java.util.List;
 public interface PostRepo extends JpaRepository<Post, Long> {
     List<Post> findAllByUsers_IdOrderByCreateTimeDesc(Long id, Pageable pageable);
     List<Post> findAllByUsers_IdInOrderByCreateTimeDesc(List<Long> usersId,Pageable pageable);
-
+    List<Post> findAllByCountReportedGreaterThan(Integer num);
 
 }

@@ -1,13 +1,12 @@
 package com.cnpm.socialmedia.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
@@ -22,6 +21,7 @@ public class UserDTO {
     private int gender;
     @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private Date birthDay;
+    private int countReport;
 
 
     public UserDTO(Long id, String firstName, String lastName, String email, String imageUrl) {

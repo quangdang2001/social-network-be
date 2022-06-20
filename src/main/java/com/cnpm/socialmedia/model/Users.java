@@ -50,4 +50,8 @@ public class Users {
     @OneToMany(mappedBy = "sender",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Message> messages;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "userId")
+    private List<PostLike> postLikes;
+
 }

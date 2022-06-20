@@ -53,26 +53,8 @@ public class PostServiceIplm implements PostService {
         List<Long> usersFollowingId = userFollowingService.findAllIdFollowingUser(userId);
         Pageable pageable = PageRequest.of(page,size);
         List<Post> posts =postRepo.findAllByUsers_IdInOrderByCreateTimeDesc(usersFollowingId,pageable);
-        List<PostDTO> postDTOS = new ArrayList<>();
-        posts.forEach(post -> {
-            PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
-                    post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
-                    post.getCreateTime(),post.getUpdateTime(),post.isPostShare(),
-                    post.getPostShared() == null ? null:post.getPostShared().getId());
-            UserDTO userDTO = new UserDTO();
-            userDTO.setId(post.getUsers().getId());
-            userDTO.setFirstName(post.getUsers().getFirstName());
-            userDTO.setLastName(post.getUsers().getLastName());
-            userDTO.setEmail(post.getUsers().getEmail());
-            userDTO.setImageUrl(post.getUsers().getImageUrl());
 
-            boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(post.getId(),userId) != null;
-            postDTO.setLiked(check);
-
-            postDTO.setUserDTO(userDTO);
-            postDTOS.add(postDTO);
-        });
-        return postDTOS;
+        return  convertPostsToPostDTOs(posts,userId);
     }
 
     @Override
@@ -99,7 +81,7 @@ public class PostServiceIplm implements PostService {
             boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(post.getId(),userId) != null;
             postDTO.setLiked(check);
 
-            postDTO.setUserDTO(userDTO);
+            postDTO.setUserCreate(userDTO);
             postDTOS.add(postDTO);
         });
 
@@ -143,6 +125,12 @@ public class PostServiceIplm implements PostService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<Post> findPostReported() {
+        List<Post> posts = postRepo.findAllByCountReportedGreaterThan(20);
+        return posts;
     }
 
     @Override
@@ -200,7 +188,28 @@ public class PostServiceIplm implements PostService {
         return post;
     }
 
-
+    List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Long userId){
+        List<PostDTO> postDTOS = new ArrayList<>();
+        posts.forEach(post -> {
+            PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
+                    post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
+                    post.getCreateTime(),post.getUpdateTime(),post.isPostShare(),
+                    post.getPostShared() == null ? null:post.getPostShared().getId());
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(post.getUsers().getId());
+            userDTO.setFirstName(post.getUsers().getFirstName());
+            userDTO.setLastName(post.getUsers().getLastName());
+            userDTO.setEmail(post.getUsers().getEmail());
+            userDTO.setImageUrl(post.getUsers().getImageUrl());
+            if (userId!=null) {
+                boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(post.getId(), userId) != null;
+                postDTO.setLiked(check);
+            }
+            postDTO.setUserCreate(userDTO);
+            postDTOS.add(postDTO);
+        });
+        return postDTOS;
+    }
 
 
 }

@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.dto;
 
+import com.cnpm.socialmedia.model.Post;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +39,6 @@ public class PostDTO {
         this.postSharedId = postSharedId;
     }
 
-    private UserDTO userDTO;
+    private UserDTO userCreate;
     private boolean isLiked;
 }

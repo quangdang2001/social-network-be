@@ -36,7 +36,7 @@ public class Post {
     private Users users;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     private List<Comment> comments;
 
     private boolean isPostShare=false;
@@ -49,5 +49,24 @@ public class Post {
     }
     public void decreaseLike(){
         this.countLiked--;
+    }
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "postShared")
+    private List<Post> postChild;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE)
+    private List<Notification> notifications;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "postId",cascade = CascadeType.REMOVE)
+    private List<PostLike> postLikes;
+
+    @PreRemove
+    public void setNull(){
+        postChild.forEach(post -> {
+            post.setPostShared(null);
+        });
     }
 }

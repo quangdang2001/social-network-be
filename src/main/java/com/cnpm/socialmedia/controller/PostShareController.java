@@ -30,6 +30,7 @@ public class PostShareController {
         post.setUsers(userService.findById(postDTO.getUserId()));
         post.setPostShared(postService.findPostById(postDTO.getPostSharedId()));
         post.setCreateTime(new Date());
+        postService.save(post);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                 post));
     }

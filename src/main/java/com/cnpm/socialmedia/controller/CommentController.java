@@ -40,7 +40,7 @@ public class CommentController {
                 cmtResponse));
     }
 
-    @GetMapping("comment/post/child/{cmtParentId}")
+    @GetMapping("/comment/post/child/{cmtParentId}")
     public ResponseEntity<?> getCmmentChild(@PathVariable Long cmtParentId){
         try {
             List<Comment> comments= commentService.findCommentChild(cmtParentId);

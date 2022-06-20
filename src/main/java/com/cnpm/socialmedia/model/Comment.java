@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -31,6 +32,10 @@ public class Comment {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Comment commentParrent;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "commentParrent",cascade = CascadeType.REMOVE)
+    private List<Comment> comments;
 
 //    public void increaseLike(){
 //        this.countLike++;

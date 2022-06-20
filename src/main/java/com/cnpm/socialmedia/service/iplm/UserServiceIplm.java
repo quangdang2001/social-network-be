@@ -150,6 +150,21 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     }
 
     @Override
+    public List<Users> findUserReported() {
+        return userRepo.findAllByCountReportGreaterThan(20);
+    }
+
+    @Override
+    public Set<Users> searchUser(String keyword) {
+        Set<Users> users= new HashSet<>();
+        List<Users> users1 = userRepo.findAllByFirstNameLike(keyword);
+        List<Users> users2 = userRepo.findAllByLastNameLike(keyword);
+        users.addAll(users1);
+        users.addAll(users2);
+        return users;
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Users user = findUserByEmail(username);
         if (user != null) {
