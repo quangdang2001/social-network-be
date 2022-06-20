@@ -37,7 +37,12 @@ public class UserServiceIplm implements UserService, UserDetailsService {
 
     @Override
     public Users saveRegister(UserDTO userDTO) {
-        Users user = new Users();
+        Users user;
+        user = findUserByEmail(userDTO.getEmail());
+        if (user!=null){
+            return null;
+        }
+        user = new Users();
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setAddress(userDTO.getAddress());
@@ -45,7 +50,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
         user.setEmail(userDTO.getEmail());
         user.setGender(userDTO.getGender());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
+        user.setBirthDay(userDTO.getBirthDay());
         return userRepo.save(user);
     }
 

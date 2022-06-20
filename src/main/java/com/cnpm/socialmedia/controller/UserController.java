@@ -144,5 +144,33 @@ public class UserController {
                 users));
 
     }
+    @PutMapping("/user")
+    private ResponseEntity<?> updateUser(@RequestBody UserDTO userDTO){
+        Users users = userService.findById(userDTO.getId());
+        if (users!=null){
+            if (!userDTO.getFirstName().trim().equals("") && userDTO.getFirstName()!=null){
+                users.setFirstName(userDTO.getFirstName().trim());
+            }
+            if (!userDTO.getLastName().trim().equals("") && userDTO.getLastName()!=null){
+                users.setLastName(userDTO.getLastName().trim());
+            }
+            if (!userDTO.getAddress().trim().equals("") && userDTO.getAddress()!=null){
+                users.setAddress(users.getAddress().trim());
+            }
+            if (!userDTO.getBio().trim().equals("") && userDTO.getAddress()!=null){
+                users.setBio(users.getBio().trim());
+            }
+            if (userDTO.getGender()==0 && userDTO.getGender()==1){
+                users.setGender(users.getGender());
+            }
+            if (!userDTO.getBirthDay().equals("") && userDTO.getBirthDay()!=null){
+                users.setBirthDay(users.getBirthDay());
+            }
+        }
+        userService.save(users);
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                users));
+    }
+
 
 }

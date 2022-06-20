@@ -16,5 +16,6 @@ public interface CommentService {
 //    void likeComment(Long cmtId);
     Comment cmtComment(CmtDTO cmtDTO);
     Comment cmtPost(CmtDTO cmtDTO);
+    List<Comment> findCommentChild(Long cmtIdParent);
 
 }

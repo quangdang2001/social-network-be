@@ -39,6 +39,27 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                 cmtResponse));
     }
+
+    @GetMapping("comment/post/child/{cmtParentId}")
+    public ResponseEntity<?> getCmmentChild(@PathVariable Long cmtParentId){
+        try {
+            List<Comment> comments= commentService.findCommentChild(cmtParentId);
+            List<CmtResponse> cmtResponses = new ArrayList<>();
+            comments.forEach(comment -> {
+                Users users = comment.getUsers();
+
+                CmtResponse cmtResponse =convertCmtToRes(users,comment);
+                cmtResponses.add(cmtResponse);
+            });
+            return  ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
+                    cmtResponses));
+        }
+        catch (Exception e){
+            return  ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
+                    e.getMessage()));
+        }
+
+    }
     @GetMapping("/comment/post")
     public ResponseEntity<?> getCommentPost(@RequestParam Long postId,
                                             @RequestParam(defaultValue = "0") Integer page,

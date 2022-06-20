@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +30,8 @@ public class Users {
     private int gender;
     private String bio;
     private String address;
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    private Date birthDay;
     private int countReport = 0;
     private int countFollower = 0;
     private int countFollowing =0;

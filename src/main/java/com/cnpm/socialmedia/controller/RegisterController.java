@@ -37,6 +37,10 @@ public class RegisterController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO, HttpServletRequest request){
         Users users = userService.saveRegister(userDTO);
+        if (users==null){
+            return ResponseEntity.ok(new ResponseDTO(false,"Email already exits",
+                    null));
+        }
         publisher.publishEvent(new RegisterCompleteEvent(
                 users,
                 applicationUrl(request)

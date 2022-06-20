@@ -97,4 +97,10 @@ public class CommentServiceIplm implements CommentService {
 
         return comment;
     }
+
+    @Override
+    public List<Comment> findCommentChild(Long cmtIdParent) {
+        List<Comment> comments = commentRepo.findCommentByCommentParrent_Id(cmtIdParent);
+        return comments;
+    }
 }
