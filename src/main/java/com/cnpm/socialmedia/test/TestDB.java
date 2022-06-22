@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @SpringBootTest
 @Service
@@ -28,12 +29,14 @@ public class TestDB {
 
     @Test
     public void test(){
-        System.out.println(new Date());
+        System.out.println(userRepo.searchUserFirstLastName("quangg").size());
+        System.out.println(userRepo.searchUserLastFirstName("quangg").size());
+
     }
     @Test
 
     public void testLazy(){
-        List<Users> users = userRepo.findAllByFirstNameContaining("quang dang");
+        Set<Users> users = userService.searchUser("dang1 quang1");
         users.forEach(user -> {
             System.out.println(user.getFirstName());
         });

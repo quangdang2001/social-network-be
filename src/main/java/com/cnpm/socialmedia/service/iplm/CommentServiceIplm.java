@@ -69,7 +69,7 @@ public class CommentServiceIplm implements CommentService {
         comment.setCommentPost(false);
         comment.setUsers(users);
         comment.setPost(post);
-        comment.setCreateTime(new Date());
+
         comment.setCommentParrent(cmtParent);
         cmtParent.setCountReply(cmtParent.getCountReply()+1);
         save(cmtParent);
@@ -83,7 +83,7 @@ public class CommentServiceIplm implements CommentService {
         Post post = postService.findPostById(cmtDTO.getPostId());
         Users users = userService.findById(cmtDTO.getUserId());
         comment.setContent(cmtDTO.getContent());
-        comment.setCreateTime(new Date());
+
         comment.setPost(post);
         comment.setUsers(users);
         commentRepo.save(comment);

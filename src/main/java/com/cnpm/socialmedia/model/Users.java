@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(indexes = {@Index(name = "index1", columnList = "firstName,lastName"),
+        @Index(name = "index2", columnList = "email"),
+        @Index(name = "index3",columnList = "lastName,firstName")})
 @Data @AllArgsConstructor
 @NoArgsConstructor
 public class Users {

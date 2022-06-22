@@ -144,31 +144,15 @@ public class UserController {
     }
     @PutMapping("/user")
     private ResponseEntity<?> updateUser(@RequestBody UserDTO userDTO){
-        Users users = userService.findById(userDTO.getId());
-        if (users!=null){
-            if (userDTO.getFirstName()!=null && !userDTO.getFirstName().trim().equals("") ){
-                users.setFirstName(userDTO.getFirstName().trim());
-            }
-            if (userDTO.getLastName()!=null && !userDTO.getLastName().trim().equals("") ){
-                users.setLastName(userDTO.getLastName().trim());
-            }
-            if ( userDTO.getAddress()!=null && !userDTO.getAddress().trim().equals("")){
-                users.setAddress(userDTO.getAddress().trim());
-            }
-            if ( userDTO.getBio()!=null && !userDTO.getBio().trim().equals("")){
-                users.setBio(userDTO.getBio().trim());
-            }
-            if ( userDTO.getGender()==1 && userDTO.getGender()==0){
-                users.setGender(userDTO.getGender());
-            }
-            if ( userDTO.getBirthDay()!=null && !userDTO.getBirthDay().equals("")){
-                users.setBirthDay(userDTO.getBirthDay());
-            }
-        }
-        userService.save(users);
+        Users users = userService.updateUser(userDTO);
         return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
                 users));
     }
-
+    @GetMapping("/user/search")
+    public ResponseEntity<?> searchUser(@RequestParam String keyword){
+        Set<Users> users = userService.searchUser(keyword);
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
+                users));
+    }
 
 }

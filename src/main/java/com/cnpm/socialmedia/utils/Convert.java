@@ -14,4 +14,9 @@ public class Convert {
         fos.close();
         return convFile;
     }
+    public static String formatName(String name){
+        name = name.trim();
+        name = name.replaceAll("  "," ");
+        return name;
+    }
 }

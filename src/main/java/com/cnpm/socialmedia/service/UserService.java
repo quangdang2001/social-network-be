@@ -30,4 +30,6 @@ public interface UserService {
     List<Users> findUserReported();
 
     Set<Users> searchUser(String keyword);
+
+    Users updateUser(UserDTO userDTO);
 }

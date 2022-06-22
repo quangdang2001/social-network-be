@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DatabindException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -18,6 +19,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String message;
+    @CreationTimestamp
     private Date createTime;
 
     @ManyToOne(fetch = FetchType.LAZY)

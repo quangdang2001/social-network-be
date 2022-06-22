@@ -6,6 +6,7 @@ import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.UserRepo;
 import com.cnpm.socialmedia.repo.VerificationTokenRepo;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -43,8 +44,8 @@ public class UserServiceIplm implements UserService, UserDetailsService {
             return null;
         }
         user = new Users();
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
+        user.setFirstName(Convert.formatName(userDTO.getFirstName()));
+        user.setLastName(Convert.formatName(userDTO.getLastName()));
         user.setAddress(userDTO.getAddress());
         user.setBio(userDTO.getBio());
         user.setEmail(userDTO.getEmail());
@@ -157,10 +158,37 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     @Override
     public Set<Users> searchUser(String keyword) {
         Set<Users> users= new HashSet<>();
-        List<Users> users1 = userRepo.findAllByFirstNameLike(keyword);
-        List<Users> users2 = userRepo.findAllByLastNameLike(keyword);
-        users.addAll(users1);
-        users.addAll(users2);
+        keyword = keyword.trim();
+        keyword = keyword.replaceAll("  "," ");
+        users.addAll(userRepo.searchUserFirstLastName(keyword));
+        users.addAll(userRepo.searchUserLastFirstName(keyword));
+        return users;
+    }
+
+    @Override
+    public Users updateUser(UserDTO userDTO) {
+        Users users = findById(userDTO.getId());
+        if (users!=null){
+            if (userDTO.getFirstName()!=null && !userDTO.getFirstName().trim().equals("") ){
+                users.setFirstName(Convert.formatName(userDTO.getFirstName()));
+            }
+            if (userDTO.getLastName()!=null && !userDTO.getLastName().trim().equals("") ){
+                users.setLastName(Convert.formatName(userDTO.getLastName()));
+            }
+            if ( userDTO.getAddress()!=null && !userDTO.getAddress().trim().equals("")){
+                users.setAddress(Convert.formatName(userDTO.getAddress()));
+            }
+            if ( userDTO.getBio()!=null && !userDTO.getBio().trim().equals("")){
+                users.setBio(Convert.formatName(userDTO.getBio()));
+            }
+            if ( userDTO.getGender()==1 && userDTO.getGender()==0){
+                users.setGender(userDTO.getGender());
+            }
+            if ( userDTO.getBirthDay()!=null && !userDTO.getBirthDay().equals("")){
+                users.setBirthDay(userDTO.getBirthDay());
+            }
+        }
+        save(users);
         return users;
     }
 

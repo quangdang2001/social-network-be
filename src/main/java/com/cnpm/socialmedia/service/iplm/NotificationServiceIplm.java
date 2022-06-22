@@ -27,7 +27,6 @@ public class NotificationServiceIplm implements NotificationService {
 
     @Override
     public Notification save(Notification notification) {
-        notification.setCreateTime(new Date());
         return notificationRepo.save(notification);
     }
 

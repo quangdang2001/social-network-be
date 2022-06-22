@@ -166,7 +166,6 @@ public class PostServiceIplm implements PostService {
         post.setContent(postDTO.getContent());
         post.setImgUrl(postDTO.getUrlImage());
         post.setUsers(userService.findById(postDTO.getUserId()));
-        post.setCreateTime(new Date());
         post.setPostShared(null);
         save(post);
         return post;
@@ -177,7 +176,7 @@ public class PostServiceIplm implements PostService {
         Post post = findPostById(postDTO.getId());
         post.setContent(postDTO.getContent());
         post.setImgUrl(post.getImgUrl());
-        post.setUpdateTime(new Date());
+
         save(post);
         return post;
     }
