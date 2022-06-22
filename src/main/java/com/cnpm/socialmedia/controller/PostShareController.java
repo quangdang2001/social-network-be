@@ -5,6 +5,7 @@ import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,12 +17,11 @@ import java.util.Date;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 @Slf4j
 public class PostShareController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private PostService postService;
+    private final UserService userService;
+    private final PostService postService;
     @PostMapping("/postshare")
     public ResponseEntity<?> savePostShare(@RequestBody PostDTO postDTO){
         Post post = new Post();

@@ -48,11 +48,6 @@ public class CommentServiceIplm implements CommentService {
     }
 
     @Override
-    public List<Comment> findCommentsByUsers_Id(Long userId) {
-        return commentRepo.findCommentsByUsers_Id(userId);
-    }
-
-    @Override
     public List<Comment> findCmtByPostId(Long postId, Pageable pageable) {
         return commentRepo.findCommentByPost_Id(postId,pageable);
     }

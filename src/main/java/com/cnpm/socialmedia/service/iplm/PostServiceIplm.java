@@ -3,27 +3,21 @@ package com.cnpm.socialmedia.service.iplm;
 import com.cloudinary.utils.ObjectUtils;
 import com.cnpm.socialmedia.dto.PostDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
-import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.model.PostLike;
 import com.cnpm.socialmedia.model.Users;
-import com.cnpm.socialmedia.repo.NotificationRepo;
 import com.cnpm.socialmedia.repo.PostLikeRepo;
 import com.cnpm.socialmedia.repo.PostRepo;
-import com.cnpm.socialmedia.repo.UserFollowingRepo;
 import com.cnpm.socialmedia.service.Cloudinary.CloudinaryUpload;
 import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserFollowingService;
 import com.cnpm.socialmedia.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -188,7 +182,7 @@ public class PostServiceIplm implements PostService {
         return post;
     }
 
-    List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Long userId){
+    private List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Long userId){
         List<PostDTO> postDTOS = new ArrayList<>();
         posts.forEach(post -> {
             PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),

@@ -12,6 +12,7 @@ import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.UserFollowingService;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Convert;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -29,17 +30,14 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 @Slf4j
 public class UserController {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserFollowingService userFollowingService;
-    @Autowired
-    private NotificationService notificationService;
-    @Autowired
-    private CloudinaryUpload cloudinaryUpload;
+    private final UserService userService;
+    private final UserFollowingService userFollowingService;
+    private final NotificationService notificationService;
+    private final CloudinaryUpload cloudinaryUpload;
 
     @PostMapping("/user/follow")
     public ResponseEntity<?> followUser(@RequestParam Long userId,
@@ -148,23 +146,23 @@ public class UserController {
     private ResponseEntity<?> updateUser(@RequestBody UserDTO userDTO){
         Users users = userService.findById(userDTO.getId());
         if (users!=null){
-            if (!userDTO.getFirstName().trim().equals("") && userDTO.getFirstName()!=null){
+            if (userDTO.getFirstName()!=null && !userDTO.getFirstName().trim().equals("") ){
                 users.setFirstName(userDTO.getFirstName().trim());
             }
-            if (!userDTO.getLastName().trim().equals("") && userDTO.getLastName()!=null){
+            if (userDTO.getLastName()!=null && !userDTO.getLastName().trim().equals("") ){
                 users.setLastName(userDTO.getLastName().trim());
             }
-            if (!userDTO.getAddress().trim().equals("") && userDTO.getAddress()!=null){
-                users.setAddress(users.getAddress().trim());
+            if ( userDTO.getAddress()!=null && !userDTO.getAddress().trim().equals("")){
+                users.setAddress(userDTO.getAddress().trim());
             }
-            if (!userDTO.getBio().trim().equals("") && userDTO.getAddress()!=null){
-                users.setBio(users.getBio().trim());
+            if ( userDTO.getBio()!=null && !userDTO.getBio().trim().equals("")){
+                users.setBio(userDTO.getBio().trim());
             }
-            if (userDTO.getGender()==0 && userDTO.getGender()==1){
-                users.setGender(users.getGender());
+            if ( userDTO.getGender()==1 && userDTO.getGender()==0){
+                users.setGender(userDTO.getGender());
             }
-            if (!userDTO.getBirthDay().equals("") && userDTO.getBirthDay()!=null){
-                users.setBirthDay(users.getBirthDay());
+            if ( userDTO.getBirthDay()!=null && !userDTO.getBirthDay().equals("")){
+                users.setBirthDay(userDTO.getBirthDay());
             }
         }
         userService.save(users);

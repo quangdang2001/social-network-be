@@ -8,6 +8,7 @@ import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.service.email.EmailSenderService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,16 +24,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 @Slf4j
 public class RegisterController {
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ApplicationEventPublisher publisher;
-
-    @Autowired
-    private EmailSenderService emailSenderService;
+    private final UserService userService;
+    private final ApplicationEventPublisher publisher;
+    private final EmailSenderService emailSenderService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO, HttpServletRequest request){

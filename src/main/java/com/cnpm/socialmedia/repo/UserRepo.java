@@ -10,6 +10,8 @@ import java.util.List;
 public interface UserRepo extends JpaRepository<Users, Long> {
     Users findUserByEmail(String email);
     List<Users> findAllByCountReportGreaterThan(Integer num);
+
+
     List<Users> findAllByFirstNameContaining(String firstName);
     List<Users> findAllByLastNameContaining(String lastName);
     List<Users> findAllByEmailContaining(String email);

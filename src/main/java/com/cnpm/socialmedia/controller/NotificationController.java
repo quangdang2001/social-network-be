@@ -3,6 +3,7 @@ package com.cnpm.socialmedia.controller;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.service.NotificationService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 @Slf4j
 public class NotificationController {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
 
     @PutMapping("notification/setSeen")
     public ResponseEntity<?> setSeen(@RequestParam Long notificationId){

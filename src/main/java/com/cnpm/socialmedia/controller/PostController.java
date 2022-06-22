@@ -11,6 +11,7 @@ import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.service.Cloudinary.CloudinaryUpload;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.utils.Convert;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,14 +35,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 @Slf4j
 public class PostController {
 
-    @Autowired
-    private PostService postService;
-
-    @Autowired
-    private CloudinaryUpload cloudinaryUpload;
+    private final PostService postService;
+    private final CloudinaryUpload cloudinaryUpload;
 
 
     @GetMapping("/post/{id}")
@@ -124,7 +123,6 @@ public class PostController {
         }
         else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(false, "Not found post", null));
-
         }
     }
 

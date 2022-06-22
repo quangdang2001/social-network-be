@@ -10,7 +10,6 @@ public interface CommentService {
     Comment findById(Long id);
     Comment save(Comment comment);
     void deleteCommentById(Long id);
-    List<Comment> findCommentsByUsers_Id(Long userId);
     List<Comment> findCmtByPostId(Long postId, Pageable pageable);
     /////
 //    void likeComment(Long cmtId);

@@ -8,6 +8,8 @@ import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.CommentService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,10 +26,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequiredArgsConstructor
 @Slf4j
 public class CommentController {
-    @Autowired
-    private CommentService commentService;
+
+    private final CommentService commentService;
 
     @PostMapping("/comment")
     public ResponseEntity<?> cmtPost(@RequestBody CmtDTO cmtDTO){
