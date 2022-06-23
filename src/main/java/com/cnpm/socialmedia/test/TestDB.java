@@ -5,6 +5,7 @@ import com.cnpm.socialmedia.repo.PostRepo;
 import com.cnpm.socialmedia.repo.UserRepo;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
@@ -34,12 +35,15 @@ public class TestDB {
 
     }
     @Test
-
     public void testLazy(){
         Set<Users> users = userService.searchUser("dang1 quang1");
         users.forEach(user -> {
             System.out.println(user.getFirstName());
         });
 
+    }
+    @Test
+    public void random(){
+        System.out.println(RandomStringUtils.randomAlphanumeric(6));
     }
 }

@@ -8,6 +8,7 @@ import com.cnpm.socialmedia.repo.VerificationTokenRepo;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -74,7 +75,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     @Override
     public String validateVerificationToken(String email, String token) {
         VerificationToken verificationToken
-                = verificationTokenRepo.findVerificationTokenByUserEmailAndToken(email,token);
+                = verificationTokenRepo.findVerificationTokenByToken(token);
 
         if (verificationToken == null) {
             return "invalid";
@@ -88,7 +89,8 @@ public class UserServiceIplm implements UserService, UserDetailsService {
             verificationTokenRepo.delete(verificationToken);
             return "expired";
         }
-
+        verificationToken.setToken(null);
+        verificationTokenRepo.save(verificationToken);
         user.setEnable(true);
         userRepo.save(user);
         return "valid";
@@ -98,7 +100,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     public VerificationToken SendToken(String email) {
         VerificationToken verificationToken = verificationTokenRepo.findVerificationTokenByUserEmail(email);
         if (verificationToken != null){
-            String token = UUID.randomUUID().toString();
+            String token = RandomStringUtils.randomAlphanumeric(6).toUpperCase();
             verificationToken.setToken(token);
             verificationTokenRepo.save(verificationToken);
             return verificationToken;
@@ -109,13 +111,13 @@ public class UserServiceIplm implements UserService, UserDetailsService {
 
 
     @Override
-    public String validatePasswordResetToken(String email, String token) {
+    public Users validatePasswordResetToken(String token) {
 
         VerificationToken verificationToken
-                = verificationTokenRepo.findVerificationTokenByUserEmailAndToken(email,token);
+                = verificationTokenRepo.findVerificationTokenByToken(token);
 
         if (verificationToken == null) {
-            return "invalid";
+            return null;
         }
 
         Calendar cal = Calendar.getInstance();
@@ -123,10 +125,12 @@ public class UserServiceIplm implements UserService, UserDetailsService {
         if ((verificationToken.getExpirationTime().getTime()
                 - cal.getTime().getTime()) <= 0) {
             verificationTokenRepo.delete(verificationToken);
-            return "expired";
+            return null;
         }
-
-        return "valid";
+        Users users = verificationToken.getUser();
+        verificationToken.setToken(null);
+        verificationTokenRepo.save(verificationToken);
+        return users;
     }
 
     @Override

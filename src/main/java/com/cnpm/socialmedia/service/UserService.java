@@ -20,7 +20,7 @@ public interface UserService {
 
 
 
-    String validatePasswordResetToken(String email, String token);
+    Users validatePasswordResetToken(String token);
     void changePassword(Users user, String newPassword);
 
     boolean checkIfValidOldPassword(Users user, String oldPassword);

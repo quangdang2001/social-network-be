@@ -87,29 +87,22 @@ public class RegisterController {
                 null));
     }
     @PostMapping("/savePassword")
-    public ResponseEntity<?> savePassword(@RequestParam("token") String token,
-                               @RequestBody PasswordDTO passwordDTO) {
+    public ResponseEntity<?> savePassword(@RequestBody PasswordDTO passwordDTO) {
 
 
-        String result = userService.validatePasswordResetToken(passwordDTO.getEmail(), token);
-        if(!result.equalsIgnoreCase("valid")) {
+        Users result = userService.validatePasswordResetToken(passwordDTO.getToken());
+        if(result == null) {
 
             return ResponseEntity.badRequest().body(new ResponseDTO(false,"Invalid token",
                     null));
         }
-        Optional<Users> user = Optional.ofNullable(userService.findUserByEmail(passwordDTO.getEmail()));
-        if(user.isPresent()) {
-            if (!user.get().isEnable()){
-                return ResponseEntity.ok().body(new ResponseDTO(false,"Email not verify",
-                        null));
-            }
-            userService.changePassword(user.get(), passwordDTO.getNewPassword());
-            return ResponseEntity.ok().body(new ResponseDTO(true,"Change password successfully",
-                    null));
-        } else {
-            return ResponseEntity.ok().body(new ResponseDTO(false,"email not found",
+        if (!result.isEnable()){
+            return ResponseEntity.ok().body(new ResponseDTO(false,"Email not verify",
                     null));
         }
+        userService.changePassword(result, passwordDTO.getNewPassword());
+        return ResponseEntity.ok().body(new ResponseDTO(true,"Change password successfully",
+                null));
     }
 
     @PutMapping("/changePassword")
