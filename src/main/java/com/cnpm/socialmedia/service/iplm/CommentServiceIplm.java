@@ -1,6 +1,8 @@
 package com.cnpm.socialmedia.service.iplm;
 
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.CmtDTO;
+import com.cnpm.socialmedia.dto.CmtResponse;
 import com.cnpm.socialmedia.model.Comment;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
@@ -11,6 +13,7 @@ import com.cnpm.socialmedia.service.CommentService;
 import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -60,7 +63,7 @@ public class CommentServiceIplm implements CommentService {
 //    }
 
     @Override
-    public Comment cmtComment(CmtDTO cmtDTO) {
+    public CmtResponse cmtComment(CmtDTO cmtDTO) {
         Comment comment = new Comment();
         Comment cmtParent = findById(cmtDTO.getCmtId());
         Post post = postService.findPostById(cmtDTO.getPostId());
@@ -69,28 +72,37 @@ public class CommentServiceIplm implements CommentService {
         comment.setCommentPost(false);
         comment.setUsers(users);
         comment.setPost(post);
-
         comment.setCommentParrent(cmtParent);
         cmtParent.setCountReply(cmtParent.getCountReply()+1);
         save(cmtParent);
         save(comment);
-        return comment;
+
+        String content = String.format("%s %s replied your comment.",users.getFirstName(),users.getLastName());
+        Notification notification = notificationService.sendNotificationPost(post,users,content);
+        CmtResponse cmtDTO1 = Convert.convertCmtToRes(users,comment);
+        NotificationPayload notificationPayload = Convert.convertNotificationToNotifiPayload(notification);
+        cmtDTO1.setNotificationPayload(notificationPayload);
+
+        return cmtDTO1;
     }
 
     @Override
-    public Comment cmtPost(CmtDTO cmtDTO) {
+    public CmtResponse cmtPost(CmtDTO cmtDTO) {
         Comment comment = new Comment();
         Post post = postService.findPostById(cmtDTO.getPostId());
         Users users = userService.findById(cmtDTO.getUserId());
         comment.setContent(cmtDTO.getContent());
-
         comment.setPost(post);
         comment.setUsers(users);
         commentRepo.save(comment);
-        String content = String.format("%s %s commented in your post.",users.getFirstName(),users.getLastName());
-        notificationService.sendNotificationPost(post,users,content);
 
-        return comment;
+        String content = String.format("%s %s commented in your post.",users.getFirstName(),users.getLastName());
+        Notification notification = notificationService.sendNotificationPost(post,users,content);
+        CmtResponse cmtDTO1 = Convert.convertCmtToRes(users,comment);
+        NotificationPayload notificationPayload = Convert.convertNotificationToNotifiPayload(notification);
+        cmtDTO1.setNotificationPayload(notificationPayload);
+
+        return cmtDTO1;
     }
 
     @Override

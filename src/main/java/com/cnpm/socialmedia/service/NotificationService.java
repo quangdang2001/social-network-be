@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.service;
 
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.NotificationDTO;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
@@ -14,7 +15,7 @@ public interface NotificationService {
     Notification findById(Long id);
     Long countNotSeenNotifi(Long userId);
 
-    Boolean sendNotificationPost(Post post, Users senderId, String content);
-    Boolean sendNotificationFollow(Users user, Users userReceiver, String content);
+    Notification sendNotificationPost(Post post, Users senderId, String content);
+    Notification sendNotificationFollow(Users user, Users userReceiver, String content);
 
 }

@@ -8,6 +8,7 @@ import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.CommentService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.utils.Convert;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,10 +35,7 @@ public class CommentController {
 
     @PostMapping("/comment")
     public ResponseEntity<?> cmtPost(@RequestBody CmtDTO cmtDTO){
-        Comment comment = commentService.cmtPost(cmtDTO);
-        Users users = comment.getUsers();
-
-        CmtResponse cmtResponse = convertCmtToRes(users,comment);
+        CmtResponse cmtResponse = commentService.cmtPost(cmtDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                 cmtResponse));
@@ -51,7 +49,7 @@ public class CommentController {
             comments.forEach(comment -> {
                 Users users = comment.getUsers();
 
-                CmtResponse cmtResponse =convertCmtToRes(users,comment);
+                CmtResponse cmtResponse =Convert.convertCmtToRes(users,comment);
                 cmtResponses.add(cmtResponse);
             });
             return  ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
@@ -73,7 +71,7 @@ public class CommentController {
         comments.forEach(comment -> {
             Users users = comment.getUsers();
 
-            CmtResponse cmtResponse =convertCmtToRes(users,comment);
+            CmtResponse cmtResponse =Convert.convertCmtToRes(users,comment);
             cmtResponses.add(cmtResponse);
         });
 
@@ -87,26 +85,11 @@ public class CommentController {
 //    }
     @PostMapping("/comment/child")
     public ResponseEntity<?> cmtChild(@RequestBody CmtDTO cmtDTO){
-        Comment comment = commentService.cmtComment(cmtDTO);
-        Users users = comment.getUsers();
-        CmtResponse cmtResponse = convertCmtToRes(users,comment);
+        CmtResponse cmtResponse = commentService.cmtComment(cmtDTO);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                 cmtResponse));
     }
 
-    private CmtResponse convertCmtToRes(Users users, Comment comment){
-        CmtResponse.User user = new CmtResponse.User(users.getId(),users.getFirstName(),users.getLastName(),
-                users.getImageUrl());
-        CmtResponse cmtResponse = CmtResponse.builder()
-                .content(comment.getContent())
-                .createTime(comment.getCreateTime())
-                .cmtId(comment.getId())
-                .userCmt(user)
-                .build();
-        if (comment.getCommentParrent()!=null){
-            cmtResponse.setCmtParrentId(comment.getCommentParrent().getId());
-        }
-        return cmtResponse;
-    }
+
 
 }

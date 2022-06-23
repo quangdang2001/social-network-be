@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.service.iplm;
 
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.NotificationDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.model.Notification;
@@ -7,6 +8,7 @@ import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.NotificationRepo;
 import com.cnpm.socialmedia.service.NotificationService;
+import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -77,9 +79,10 @@ public class NotificationServiceIplm implements NotificationService {
     }
 
     @Override
-    public Boolean sendNotificationPost(Post post, Users senderId,String content) {
+    public Notification sendNotificationPost(Post post, Users senderId, String content) {
+        Notification notification = new Notification();
         try {
-            Notification notification = new Notification();
+
             notification.setContent(content);
             notification.setUserReceiver(post.getUsers());
             notification.setUserCreate(senderId);
@@ -88,15 +91,16 @@ public class NotificationServiceIplm implements NotificationService {
             notificationRepo.save(notification);
         }
         catch (Exception e){
-            return false;
+            return null;
         }
-        return true;
+
+        return notification;
     }
 
     @Override
-    public Boolean sendNotificationFollow(Users user, Users userReceiver, String content) {
+    public Notification sendNotificationFollow(Users user, Users userReceiver, String content) {
+        Notification notification = new Notification();
         try {
-            Notification notification = new Notification();
             notification.setContent(content);
             notification.setUserCreate(user);
             notification.setUserReceiver(userReceiver);
@@ -104,8 +108,8 @@ public class NotificationServiceIplm implements NotificationService {
 
             notificationRepo.save(notification);
         }catch (Exception e){
-            return false;
+            return null;
         }
-        return true;
+        return notification;
     }
 }

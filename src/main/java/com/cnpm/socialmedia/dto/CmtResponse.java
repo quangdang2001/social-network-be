@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.dto;
 
 
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import lombok.*;
 
 import java.util.Date;
@@ -14,7 +15,8 @@ public class CmtResponse {
     private Date createTime;
     private User userCmt;
     private Long cmtParrentId =null;
-
+    private Long postId;
+    private NotificationPayload notificationPayload;
     @AllArgsConstructor
     @Data
     public static class User {

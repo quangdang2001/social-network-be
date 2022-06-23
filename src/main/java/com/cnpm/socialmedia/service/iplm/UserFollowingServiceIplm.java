@@ -65,6 +65,16 @@ public class UserFollowingServiceIplm implements UserFollowingService {
     }
 
     @Override
+    public List<Long> findAllIdFollower(Long userId) {
+        List<UserFollowing> userFollowings = userFollowingRepo.findAllByFollowingId_Id(userId);
+        List<Long> usersId = new ArrayList<>();
+        userFollowings.forEach(userFollowing -> {
+            usersId.add(userFollowing.getUserId().getId());
+        });
+        return usersId;
+    }
+
+    @Override
     public UserFollowing save(Users users, Users following) {
         UserFollowing userFollowing = new UserFollowing(users,following);
         String content = String.format("%s %s followed you.",users.getFirstName(), users.getLastName());

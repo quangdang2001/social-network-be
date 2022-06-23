@@ -13,6 +13,9 @@ public interface UserRepo extends JpaRepository<Users, Long> {
     Users findUserByEmail(String email);
     List<Users> findAllByCountReportGreaterThan(Integer num);
 
+    @Query("select u from Users u where u.email like concat('%',:email,'%')")
+    List<Users> searchByEmail(String email);
+
     @Query("SELECT u from Users u where concat('%',u.lastName,' ',u.firstName,'%') like concat('%',:keyword,'%')")
     List<Users> searchUserLastFirstName(String keyword);
 

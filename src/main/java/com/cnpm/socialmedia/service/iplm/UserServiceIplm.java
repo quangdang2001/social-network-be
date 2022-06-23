@@ -157,11 +157,19 @@ public class UserServiceIplm implements UserService, UserDetailsService {
 
     @Override
     public Set<Users> searchUser(String keyword) {
-        Set<Users> users= new HashSet<>();
         keyword = keyword.trim();
-        keyword = keyword.replaceAll("  "," ");
-        users.addAll(userRepo.searchUserFirstLastName(keyword));
-        users.addAll(userRepo.searchUserLastFirstName(keyword));
+        keyword = keyword.replaceAll("  ", " ");
+        System.out.println(keyword);
+        Set<Users> users= new HashSet<>();
+        if (keyword.contains("gmail")){
+            keyword = keyword.substring(0,keyword.indexOf("@"));
+
+            users.addAll(userRepo.searchByEmail(keyword));
+        }
+        else {
+            users.addAll(userRepo.searchUserFirstLastName(keyword));
+            users.addAll(userRepo.searchUserLastFirstName(keyword));
+        }
         return users;
     }
 
