@@ -1,8 +1,10 @@
 package com.cnpm.socialmedia.service.iplm;
 
 import com.cloudinary.utils.ObjectUtils;
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
+import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.model.PostLike;
 import com.cnpm.socialmedia.model.Users;
@@ -13,6 +15,7 @@ import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserFollowingService;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -70,7 +73,7 @@ public class PostServiceIplm implements PostService {
             PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
                     post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
                     post.getCreateTime(),post.getUpdateTime(),post.isPostShare(),
-                    post.getPostShared() == null ? null:post.getPostShared().getId());
+                    post.getPostShared() == null ? null:post.getPostShared());
 
             boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(post.getId(),userId) != null;
             postDTO.setLiked(check);
@@ -83,9 +86,10 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
-    public Boolean likePost(Long postId, Long userId) {
+    public NotificationPayload likePost(Long postId, Long userId){
         Post post = findPostById(postId);
         Users users = userService.findById(userId);
+        NotificationPayload notificationPayload = null;
         if (post!=null && users!=null) {
             boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(postId, userId) != null;
             PostLike postLike = new PostLike(post,users);
@@ -96,16 +100,17 @@ public class PostServiceIplm implements PostService {
 
                 if (!post.getUsers().getId().equals(userId)) {
                     String content = String.format("%s %s liked your post.", users.getLastName(), users.getFirstName());
-                    notificationService.sendNotificationPost(post,users,content);
+                    notificationPayload =
+                            Convert.convertNotificationToNotifiPayload(notificationService.sendNotificationPost(post,users,content));
                 }
 
             } else {
                 post.decreaseLike();
                 postLikeRepo.delete(postLike);
             }
-            return true;
+            return notificationPayload;
         }
-        return false;
+        return null;
     }
 
     @Override
@@ -125,6 +130,23 @@ public class PostServiceIplm implements PostService {
     public List<Post> findPostReported() {
         List<Post> posts = postRepo.findAllByCountReportedGreaterThan(20);
         return posts;
+    }
+
+    @Override
+    public NotificationPayload sharePost(PostDTO postDTO){
+        Post post = new Post();
+        Users userCreate = userService.findById(postDTO.getUserId());
+        post.setPostShare(true);
+        post.setContent(postDTO.getContent());
+        post.setUsers(userCreate);
+        post.setPostShared(findPostById(postDTO.getPostSharedId()));
+        post.setCreateTime(new Date());
+        save(post);
+        Users users = post.getUsers();
+        String content = String.format("%s %s shared your post.",users.getLastName(), users.getFirstName());
+        Notification notification = notificationService.sendNotificationPost(post,userCreate,content);
+
+        return Convert.convertNotificationToNotifiPayload(notification);
     }
 
     @Override
@@ -187,7 +209,8 @@ public class PostServiceIplm implements PostService {
             PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
                     post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
                     post.getCreateTime(),post.getUpdateTime(),post.isPostShare(),
-                    post.getPostShared() == null ? null:post.getPostShared().getId());
+                    post.getPostShared() == null ? null:post.getPostShared());
+
             UserDTO userDTO = new UserDTO();
             userDTO.setId(post.getUsers().getId());
             userDTO.setFirstName(post.getUsers().getFirstName());

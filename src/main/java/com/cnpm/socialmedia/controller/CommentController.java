@@ -84,7 +84,7 @@ public class CommentController {
 //        return ResponseEntity.ok().build();
 //    }
     @PostMapping("/comment/child")
-    public ResponseEntity<?> cmtChild(@RequestBody CmtDTO cmtDTO){
+    public ResponseEntity<?> cmtChild(@RequestBody CmtDTO cmtDTO) throws InterruptedException {
         CmtResponse cmtResponse = commentService.cmtComment(cmtDTO);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                 cmtResponse));

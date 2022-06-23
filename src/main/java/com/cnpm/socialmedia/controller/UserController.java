@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.controller;
 
 import com.cloudinary.utils.ObjectUtils;
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.NotificationDTO;
 import com.cnpm.socialmedia.dto.PersonalPage;
 import com.cnpm.socialmedia.dto.ResponseDTO;
@@ -45,8 +46,9 @@ public class UserController {
         Users users = userService.findById(userId);
         Users userFollowed = userService.findById(userFollowedId);
         UserFollowing checkFollow = userFollowingService.checkFollow(userId,userFollowedId);
+        NotificationPayload notificationPayload = null;
         if (checkFollow == null) {
-            userFollowingService.save(users,userFollowed);
+            notificationPayload = userFollowingService.save(users,userFollowed);
             users.setCountFollowing(users.getCountFollowing()+1);
             userFollowed.setCountFollower(userFollowed.getCountFollower()+1);
             userService.save(users);
@@ -59,7 +61,7 @@ public class UserController {
             userService.save(userFollowed);
         }
         return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
-                null));
+                notificationPayload));
     }
     @GetMapping("/user/following")
     public ResponseEntity<?> getFollowing(@RequestParam Long userId){

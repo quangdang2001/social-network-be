@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.controller;
 
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.model.Post;
@@ -24,14 +25,10 @@ public class PostShareController {
     private final PostService postService;
     @PostMapping("/postshare")
     public ResponseEntity<?> savePostShare(@RequestBody PostDTO postDTO){
-        Post post = new Post();
-        post.setPostShare(true);
-        post.setContent(postDTO.getContent());
-        post.setUsers(userService.findById(postDTO.getUserId()));
-        post.setPostShared(postService.findPostById(postDTO.getPostSharedId()));
-        post.setCreateTime(new Date());
-        postService.save(post);
+
+        NotificationPayload notificationPayload= postService.sharePost(postDTO);
+
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
-                post));
+                notificationPayload));
     }
 }

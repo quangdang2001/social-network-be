@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.service.iplm;
 
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.UserFollowing;
@@ -8,6 +9,7 @@ import com.cnpm.socialmedia.repo.NotificationRepo;
 import com.cnpm.socialmedia.repo.UserFollowingRepo;
 import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.UserFollowingService;
+import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,12 +77,13 @@ public class UserFollowingServiceIplm implements UserFollowingService {
     }
 
     @Override
-    public UserFollowing save(Users users, Users following) {
+    public NotificationPayload save(Users users, Users following) {
         UserFollowing userFollowing = new UserFollowing(users,following);
-        String content = String.format("%s %s followed you.",users.getFirstName(), users.getLastName());
-        notificationService.sendNotificationFollow(users,following,content);
-        UserFollowing userFollowing1 = userFollowingRepo.save(userFollowing);
-        return userFollowing1;
+        String content = String.format("%s %s followed you.",users.getLastName(), users.getFirstName());
+        Notification notification= notificationService.sendNotificationFollow(users,following,content);
+        userFollowingRepo.save(userFollowing);
+
+        return Convert.convertNotificationToNotifiPayload(notification);
     }
 
     @Override

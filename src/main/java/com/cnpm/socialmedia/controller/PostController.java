@@ -4,6 +4,7 @@ package com.cnpm.socialmedia.controller;
 import com.cloudinary.utils.ObjectUtils;
 
 
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 
@@ -116,13 +117,13 @@ public class PostController {
 
     @PostMapping("/post/like")
     public ResponseEntity<?> likePost(@RequestParam Long postId,
-                                      @RequestParam Long userId){
-        Boolean check = postService.likePost(postId,userId);
-        if (check) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "Success", null));
+                                      @RequestParam Long userId) throws InterruptedException {
+        NotificationPayload notificationPayload = postService.likePost(postId,userId);
+        if (notificationPayload!= null) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "Success", notificationPayload));
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(false, "Not found post", null));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(true, "Success", null));
         }
     }
 

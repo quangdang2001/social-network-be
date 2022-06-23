@@ -80,21 +80,14 @@ public class NotificationServiceIplm implements NotificationService {
 
     @Override
     public Notification sendNotificationPost(Post post, Users senderId, String content) {
-        Notification notification = new Notification();
-        try {
-
+            Notification notification = new Notification();
             notification.setContent(content);
             notification.setUserReceiver(post.getUsers());
             notification.setUserCreate(senderId);
             notification.setPost(post);
             notification.setCreateTime(new Date());
-            notificationRepo.save(notification);
-        }
-        catch (Exception e){
-            return null;
-        }
-
-        return notification;
+            save(notification);
+            return notification;
     }
 
     @Override

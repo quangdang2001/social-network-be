@@ -63,7 +63,7 @@ public class CommentServiceIplm implements CommentService {
 //    }
 
     @Override
-    public CmtResponse cmtComment(CmtDTO cmtDTO) {
+    public CmtResponse cmtComment(CmtDTO cmtDTO){
         Comment comment = new Comment();
         Comment cmtParent = findById(cmtDTO.getCmtId());
         Post post = postService.findPostById(cmtDTO.getPostId());
@@ -87,13 +87,14 @@ public class CommentServiceIplm implements CommentService {
     }
 
     @Override
-    public CmtResponse cmtPost(CmtDTO cmtDTO) {
+    public CmtResponse cmtPost(CmtDTO cmtDTO){
         Comment comment = new Comment();
         Post post = postService.findPostById(cmtDTO.getPostId());
         Users users = userService.findById(cmtDTO.getUserId());
         comment.setContent(cmtDTO.getContent());
         comment.setPost(post);
         comment.setUsers(users);
+        comment.setCreateTime(new Date());
         commentRepo.save(comment);
 
         String content = String.format("%s %s commented in your post.",users.getFirstName(),users.getLastName());

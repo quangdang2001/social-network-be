@@ -4,6 +4,7 @@ import com.cnpm.socialmedia.event.RegisterCompleteEvent;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.service.email.EmailSenderService;
+import com.cnpm.socialmedia.utils.EmailTemplate;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -35,7 +36,7 @@ public class RegisterCompleteEventListener implements ApplicationListener<Regist
                         + "&token="+
                         token;
         // SendVerificationEmail
-        emailSenderService.sendEmail(user.getEmail(),url,"Verify Registration Email");
+        emailSenderService.sendEmail(user.getEmail(), EmailTemplate.emailRegister(url),"Verify Registration Email");
         System.out.println(url);
     }
 }

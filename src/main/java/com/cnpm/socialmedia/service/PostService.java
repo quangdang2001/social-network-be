@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.service;
 
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
@@ -22,8 +23,10 @@ public interface PostService {
     Post updatePost(PostDTO postDTO);
     List<PostDTO> findPostHomePage(Long userId, Integer page, Integer size);
     List<PostDTO> findPostOfUser(Long userId, Integer page, Integer size);
-    Boolean likePost(Long postId, Long userId);
+    NotificationPayload likePost(Long postId, Long userId);
     Boolean reportPost(Long postId);
 
     List<Post> findPostReported();
+
+    NotificationPayload sharePost(PostDTO postDTO);
 }

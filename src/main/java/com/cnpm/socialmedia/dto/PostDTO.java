@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.dto;
 
 import com.cnpm.socialmedia.model.Post;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,9 +23,11 @@ public class PostDTO {
     private Date createTime;
     private Date updateTime;
     private boolean isPostShared;
-    private Long postSharedId;
 
-    public PostDTO(Long id, String content, String urlImage, Long userId, int countLiked, int countCmted, int countShated, int countReported, Date createTime, Date updateTime, boolean isPostShared, Long postSharedId) {
+    private Long postSharedId;
+    private Post postShared;
+
+    public PostDTO(Long id, String content, String urlImage, Long userId, int countLiked, int countCmted, int countShated, int countReported, Date createTime, Date updateTime, boolean isPostShared, Post postShared) {
         this.id = id;
         this.content = content;
         this.urlImage = urlImage;
@@ -36,7 +39,7 @@ public class PostDTO {
         this.createTime = createTime;
         this.updateTime = updateTime;
         this.isPostShared = isPostShared;
-        this.postSharedId = postSharedId;
+        this.postShared = postShared;
     }
 
     private UserDTO userCreate;
