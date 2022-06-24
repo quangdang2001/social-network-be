@@ -8,6 +8,8 @@ import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.service.email.EmailSenderService;
+import com.cnpm.socialmedia.utils.Convert;
+import com.cnpm.socialmedia.utils.EmailTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +79,7 @@ public class RegisterController {
             token = userService.SendToken(passwordDTO.getEmail()).getToken();
 
             //Send email
-            emailSenderService.sendEmail(user.getEmail(),token,"Reset Password Token");
+            emailSenderService.sendEmail(user.getEmail(), EmailTemplate.emailToken(token),"Reset Password Token");
             log.info("Reset password: {}",
                     token);
             return ResponseEntity.ok(new ResponseDTO(true,"Sent email reset token",

@@ -48,6 +48,7 @@ public class PostServiceIplm implements PostService {
     @Override
     public List<PostDTO> findPostHomePage(Long userId, Integer page, Integer size) {
         List<Long> usersFollowingId = userFollowingService.findAllIdFollowingUser(userId);
+        usersFollowingId.add(userId);
         Pageable pageable = PageRequest.of(page,size);
         List<Post> posts =postRepo.findAllByUsers_IdInOrderByCreateTimeDesc(usersFollowingId,pageable);
 
