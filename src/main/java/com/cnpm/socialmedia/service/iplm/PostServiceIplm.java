@@ -144,8 +144,8 @@ public class PostServiceIplm implements PostService {
         save(post);
         Users users = post.getUsers();
         String content = String.format("%s %s shared your post.",users.getLastName(), users.getFirstName());
-        Notification notification = notificationService.sendNotificationPost(post,userCreate,content);
-
+        Notification notification = notificationService.sendNotificationPost(post.getPostShared(),userCreate,content);
+        notificationService.save(notification);
         return Convert.convertNotificationToNotifiPayload(notification);
     }
 

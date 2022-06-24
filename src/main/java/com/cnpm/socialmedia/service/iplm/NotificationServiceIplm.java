@@ -51,8 +51,9 @@ public class NotificationServiceIplm implements NotificationService {
             notificationDTO.setSeen(notification.isSeen());
             notificationDTO.setUserReceiver(notification.getUserReceiver().getId());
             notificationDTO.setCreateTime(notification.getCreateTime());
-            notificationDTO.setPostId(notification.getPost().getId());
-
+            if (notification.getPost()!= null) {
+                notificationDTO.setPostId(notification.getPost().getId());
+            }
             userDTO.setId(notification.getUserCreate().getId());
             userDTO.setLastName(notification.getUserCreate().getLastName());
             userDTO.setFirstName(notification.getUserCreate().getFirstName());
