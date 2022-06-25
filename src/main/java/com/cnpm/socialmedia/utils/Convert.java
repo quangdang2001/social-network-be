@@ -34,6 +34,7 @@ public class Convert {
                 .cmtId(comment.getId())
                 .userCmt(user)
                 .postId(comment.getPost().getId())
+                .countReply(comment.getCountReply())
                 .build();
         if (comment.getCommentParrent()!=null){
             cmtResponse.setCmtParrentId(comment.getCommentParrent().getId());

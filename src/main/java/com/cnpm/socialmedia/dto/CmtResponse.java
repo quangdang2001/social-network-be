@@ -16,6 +16,7 @@ public class CmtResponse {
     private User userCmt;
     private Long cmtParrentId =null;
     private Long postId;
+    private Integer countReply;
     private NotificationPayload notificationPayload;
     @AllArgsConstructor
     @Data

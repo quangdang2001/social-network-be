@@ -31,19 +31,6 @@ public class NotificationControllerWS {
     private final UserFollowingService userFollowingService;
     private final CommentService commentService;
 
-    @MessageMapping("/likePost")
-    public ResponseEntity<?> sendNotifilikePost(@Payload Like like){
-//        Boolean notification = postService.likePost(like.getPostId(),like.getUserId());
-//        if (notification){
-//            Post post = postService.findPostById(like.getPostId());
-//            Long count = notificationService.countNotSeenNotifi(post.getUsers().getId());
-//            simpMessagingTemplate.
-//                    convertAndSendToUser(post.getUsers().getId().toString(),"/queue/private",count);
-//            return ResponseEntity.ok(count);
-//        }
-
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
 
     @MessageMapping("/active-status")
     public ResponseEntity<?> sendActiveToAllUser(@Payload Long userId){
@@ -58,6 +45,7 @@ public class NotificationControllerWS {
         }
         return ResponseEntity.ok(usActive);
     }
+
     @MessageMapping("/sendNotification")
     public ResponseEntity<?> sendNotificationCmt(@Payload NotificationPayload notificationPayload){
         simpMessagingTemplate.convertAndSendToUser(notificationPayload.getUserReceiverId().toString(),
@@ -65,6 +53,8 @@ public class NotificationControllerWS {
 
         return ResponseEntity.ok(notificationPayload);
     }
+
+
 
 
 }
