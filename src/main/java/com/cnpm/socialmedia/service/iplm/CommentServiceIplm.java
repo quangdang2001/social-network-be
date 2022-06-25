@@ -70,6 +70,7 @@ public class CommentServiceIplm implements CommentService {
         Users users = userService.findById(cmtDTO.getUserId());
         comment.setContent(cmtDTO.getContent());
         comment.setCommentPost(false);
+        comment.setCreateTime(new Date());
         comment.setUsers(users);
         comment.setPost(post);
         comment.setCommentParrent(cmtParent);
