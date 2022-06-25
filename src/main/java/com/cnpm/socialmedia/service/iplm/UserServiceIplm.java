@@ -6,6 +6,7 @@ import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.UserRepo;
 import com.cnpm.socialmedia.repo.VerificationTokenRepo;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.utils.Constant;
 import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -92,6 +93,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
         verificationToken.setToken(null);
         verificationTokenRepo.save(verificationToken);
         user.setEnable(true);
+        user.setRole(Constant.ROLE_USER);
         userRepo.save(user);
         return "valid";
     }

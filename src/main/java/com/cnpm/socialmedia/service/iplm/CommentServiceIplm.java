@@ -52,7 +52,7 @@ public class CommentServiceIplm implements CommentService {
 
     @Override
     public List<Comment> findCmtByPostId(Long postId, Pageable pageable) {
-        return commentRepo.findCommentByPost_Id(postId,pageable);
+        return commentRepo.findCommentByPost_IdOrderByCreateTimeDesc(postId,pageable);
     }
 
 //    @Override
@@ -108,7 +108,7 @@ public class CommentServiceIplm implements CommentService {
 
     @Override
     public List<Comment> findCommentChild(Long cmtIdParent) {
-        List<Comment> comments = commentRepo.findCommentByCommentParrent_Id(cmtIdParent);
+        List<Comment> comments = commentRepo.findCommentByCommentParrent_IdOrderByCreateTimeDesc(cmtIdParent);
         return comments;
     }
 }

@@ -18,8 +18,6 @@ public interface UserService {
 
     VerificationToken SendToken(String email);
 
-
-
     Users validatePasswordResetToken(String token);
     void changePassword(Users user, String newPassword);
 

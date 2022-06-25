@@ -39,7 +39,7 @@ public class Users {
     private int countFollower = 0;
     private int countFollowing =0;
     private boolean enable = false;
-    private String role = "ROLE_USER";
+    private String role;
 
     @JsonIgnore
     @OneToMany(mappedBy = "userReceiver",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
