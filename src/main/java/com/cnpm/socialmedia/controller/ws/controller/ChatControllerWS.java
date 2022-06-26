@@ -18,5 +18,4 @@ public class ChatControllerWS {
         simpMessagingTemplate.convertAndSendToUser(messageDTO.getReceiverId().toString(),"/chat",messageDTO);
         return ResponseEntity.ok(messageDTO);
     }
-
 }
