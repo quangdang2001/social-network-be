@@ -2,6 +2,7 @@ package com.cnpm.socialmedia.config;
 
 import com.cnpm.socialmedia.fillter.UserAuthenticationFilter;
 import com.cnpm.socialmedia.fillter.UserAuthorizationFilter;
+import com.cnpm.socialmedia.utils.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -32,10 +33,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private static final String[] WHITE_LIST_URLS = {
-            "/api/get",
             "/api/register",
-            "/verifyRegistration*",
-            "/resendVerifyToken*",
+            "/api/resetPassword",
+            "/api/verifyRegistration*",
+            "/api/savePassword",
+
             // -- Swagger UI v2
             "/v2/api-docs",
             "/swagger-resources",
@@ -46,7 +48,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/webjars/**",
             // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**",
-            "/swagger-ui/**"
+            "/swagger-ui/**",
+            "/ws/**"
     };
 
     @Override
@@ -60,9 +63,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues());
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.authorizeRequests().antMatchers(WHITE_LIST_URLS).permitAll();
         http
                 .authorizeHttpRequests()
-                .antMatchers("/api/**","/ws/**").permitAll();
+                .antMatchers("/ws/**").permitAll();
+        http
+                .authorizeRequests()
+                        .antMatchers("/api/**").hasAnyAuthority(Constant.ROLE_USER)
+                        .antMatchers("/admin/**").hasAnyAuthority(Constant.ROLE_ADMIN);
 
         http.addFilter(userAuthenticationFilter);
         http.addFilterBefore(new UserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

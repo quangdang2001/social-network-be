@@ -10,13 +10,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/admin/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @Slf4j
@@ -24,6 +25,7 @@ public class AdminController {
 
     private final UserService userService;
     private final PostService postService;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/user")
     public ResponseEntity<?> getUser(@RequestParam int page,
@@ -40,6 +42,12 @@ public class AdminController {
         else {
             return ResponseEntity.ok(new ResponseDTO(false,"Failed",null));
         }
+    }
+    @PostMapping("/user")
+    public ResponseEntity<?> registerAdmin(@RequestBody Users users){
+        users.setPassword(passwordEncoder.encode(users.getPassword()));
+        userService.save(users);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/report/user")

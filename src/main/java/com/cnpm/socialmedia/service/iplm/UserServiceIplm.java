@@ -238,7 +238,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
         Users user = findUserByEmail(username);
         if (user != null) {
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            authorities.add(new SimpleGrantedAuthority(user.getRole()));
             return new User(user.getId().toString(), user.getPassword(), authorities);
         }
         return null;
