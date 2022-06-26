@@ -24,13 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationControllerWS {
 
-    private final PostService postService;
-    private final NotificationService notificationService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final UserService userService;
     private final UserFollowingService userFollowingService;
-    private final CommentService commentService;
-
 
     @MessageMapping("/active-status")
     public ResponseEntity<?> sendActiveToAllUser(@Payload Long userId){
