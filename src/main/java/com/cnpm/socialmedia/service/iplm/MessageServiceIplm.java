@@ -8,6 +8,8 @@ import com.cnpm.socialmedia.repo.MessageRepo;
 import com.cnpm.socialmedia.service.MessageService;
 import com.cnpm.socialmedia.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,23 +22,25 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MessageServiceIplm implements MessageService {
     private final MessageRepo messageRepo;
     private final UserService userService;
 
 
     @Override
-    public Message sendMessage(MessageSendDTO messageSendDTO) {
+    public Message sendMessage(MessageDTO messageDTO) {
         Message message = new Message();
-        Users usersSend = userService.findById(messageSendDTO.getUserSenderId());
-        Users usersReceiver = userService.findById(messageSendDTO.getUserReceiverId());
+        Users usersSend = userService.findById(messageDTO.getSenderId());
+        Users usersReceiver = userService.findById(messageDTO.getReceiverId());
         if (usersSend != null && usersReceiver !=null) {
-            message.setMessage(messageSendDTO.getContent());
+            message.setMessage(messageDTO.getMessage());
             message.setCreateTime(new Date());
             message.setSender(usersSend);
             message.setReceiver(usersReceiver);
+            return messageRepo.save(message);
         }
-        return messageRepo.save(message);
+        return null;
     }
 
     @Override
@@ -44,28 +48,23 @@ public class MessageServiceIplm implements MessageService {
         Pageable pageable = PageRequest.of(page,size);
         List<Message> messages = messageRepo.findBySender_IdAndReceiver_IdOrderByCreateTimeDesc(senderId,receiverId,pageable);
         List<MessageDTO> messageDTOS = new ArrayList<>();
-        MessageDTO messageDTO = new MessageDTO();
         messages.forEach(message -> {
-            messageDTO.setId(message.getId());
-            messageDTO.setMessage(message.getMessage());
-            messageDTO.setCreateTime(message.getCreateTime());
-
-            messageDTO.setSender(new MessageDTO.Sender(message.getSender().getId(),
-                    message.getSender().getFirstName(),message.getSender().getLastName(),
-                    message.getSender().getImageUrl()));
-
-            messageDTO.setReceiver(new MessageDTO.Receiver(message.getReceiver().getId(),
-                    message.getReceiver().getFirstName(),message.getReceiver().getLastName(),
-                    message.getReceiver().getImageUrl()));
-            messageDTOS.add(messageDTO);
+            messageDTOS.add(new MessageDTO(message.getId(),message.getMessage(),message.getCreateTime(),senderId,receiverId));
         });
+
 
         return messageDTOS;
     }
 
 
     @Override
-    public void deleteMessage(Long messageId) {
-        messageRepo.deleteById(messageId);
+    public boolean deleteMessage(Long messageId) {
+        try {
+            messageRepo.deleteById(messageId);
+            return true;
+        }catch (Exception e){
+            log.info("Message exception: ",e.getMessage());
+            return false;
+        }
     }
 }

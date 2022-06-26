@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.model;
 
+import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
@@ -54,7 +55,21 @@ public class Users {
     private List<Message> messages;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "userId",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<PostLike> postLikes;
+
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "users",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post> posts;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "userId",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<UserFollowing> userFollowings;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "followingId",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<UserFollowing> followingId;
+
 
 }

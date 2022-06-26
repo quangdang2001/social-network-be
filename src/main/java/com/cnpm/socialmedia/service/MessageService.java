@@ -7,7 +7,7 @@ import com.cnpm.socialmedia.model.Message;
 import java.util.List;
 
 public interface MessageService {
-    Message sendMessage(MessageSendDTO messageSendDTO);
+    Message sendMessage(MessageDTO messageDTO);
     List<MessageDTO> getMessage(Long senderId, Long receiverId,Integer page, Integer size);
-    void deleteMessage(Long messageId);
+    boolean deleteMessage(Long messageId);
 }

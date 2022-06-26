@@ -39,26 +39,5 @@ public class ReportController {
         }
         return ResponseEntity.ok(new ResponseDTO(false,"Report failed",null));
     }
-    @GetMapping("/report/admin/user")
-    private ResponseEntity<?> getUserReported(){
-        List<Users> users = userService.findUserReported();
-        List<UserDTO> userDTOList = new ArrayList<>();
-        UserDTO userDTO = new UserDTO();
-        users.forEach(user ->{
-            userDTO.setId(user.getId());
-            userDTO.setFirstName(user.getFirstName());
-            userDTO.setLastName(user.getLastName());
-            userDTO.setEmail(userDTO.getEmail());
-            userDTO.setCountReport(user.getCountReport());
-            userDTO.setImageUrl(user.getImageUrl());
-            userDTOList.add(userDTO);
-        });
-        return ResponseEntity.ok(new ResponseDTO(false,"Success",userDTOList));
-    }
-    @GetMapping("/report/admin/post")
-    private ResponseEntity<?> getPostReported(){
-        List<Post> posts = postService.findPostReported();
-        return ResponseEntity.ok(new ResponseDTO(false,"Success",posts));
 
-    }
 }

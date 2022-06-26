@@ -33,4 +33,6 @@ public interface UserService {
     Users updateUser(UserDTO userDTO);
 
     Page<Users> getUserAdmin(int page, int size);
+
+    boolean deleteUser(Long userId);
 }

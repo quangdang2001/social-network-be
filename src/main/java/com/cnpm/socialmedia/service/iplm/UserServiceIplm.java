@@ -9,6 +9,7 @@ import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Constant;
 import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserServiceIplm implements UserService, UserDetailsService {
 
     private final UserRepo userRepo;
@@ -215,6 +217,20 @@ public class UserServiceIplm implements UserService, UserDetailsService {
         Pageable pageable = PageRequest.of(page,size);
         Page<Users> users = userRepo.findAll(pageable);
         return  users;
+    }
+
+    @Override
+    public boolean deleteUser(Long userId) {
+        try {
+            Users users = findById(userId);
+            users.setRole(null);
+            users.setEnable(false);
+            userRepo.save(users);
+            return true;
+        }catch (Exception e){
+            log.error("User delete exception: ",e.getMessage());
+            return false;
+        }
     }
 
     @Override
