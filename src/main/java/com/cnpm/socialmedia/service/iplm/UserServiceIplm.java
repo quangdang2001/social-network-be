@@ -11,6 +11,10 @@ import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -204,6 +208,13 @@ public class UserServiceIplm implements UserService, UserDetailsService {
         }
         save(users);
         return users;
+    }
+
+    @Override
+    public Page<Users> getUserAdmin(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Users> users = userRepo.findAll(pageable);
+        return  users;
     }
 
     @Override

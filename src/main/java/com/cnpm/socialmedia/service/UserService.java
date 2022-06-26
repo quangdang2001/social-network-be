@@ -3,6 +3,7 @@ package com.cnpm.socialmedia.service;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.cnpm.socialmedia.model.Users;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Set;
@@ -30,4 +31,6 @@ public interface UserService {
     Set<Users> searchUser(String keyword);
 
     Users updateUser(UserDTO userDTO);
+
+    Page<Users> getUserAdmin(int page, int size);
 }

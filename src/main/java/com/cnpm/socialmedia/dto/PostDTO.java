@@ -22,12 +22,12 @@ public class PostDTO {
     private int countReported = 0;
     private Date createTime;
     private Date updateTime;
-    private boolean isPostShared;
+    private boolean isPostShare;
 
     private Long postSharedId;
-    private Post postShared;
+    private PostShareDTO postShared;
 
-    public PostDTO(Long id, String content, String urlImage, Long userId, int countLiked, int countCmted, int countShated, int countReported, Date createTime, Date updateTime, boolean isPostShared, Post postShared) {
+    public PostDTO(Long id, String content, String urlImage, Long userId, int countLiked, int countCmted, int countShated, int countReported, Date createTime, Date updateTime, boolean isPostShare) {
         this.id = id;
         this.content = content;
         this.urlImage = urlImage;
@@ -38,8 +38,7 @@ public class PostDTO {
         this.countReported = countReported;
         this.createTime = createTime;
         this.updateTime = updateTime;
-        this.isPostShared = isPostShared;
-        this.postShared = postShared;
+        this.isPostShare = isPostShare;
     }
 
     private UserDTO userCreate;

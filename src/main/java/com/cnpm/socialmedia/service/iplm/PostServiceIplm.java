@@ -3,6 +3,7 @@ package com.cnpm.socialmedia.service.iplm;
 import com.cloudinary.utils.ObjectUtils;
 import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
+import com.cnpm.socialmedia.dto.PostShareDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
@@ -73,9 +74,18 @@ public class PostServiceIplm implements PostService {
         posts.forEach(post -> {
             PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
                     post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
-                    post.getCreateTime(),post.getUpdateTime(),post.isPostShare(),
-                    post.getPostShared() == null ? null:post.getPostShared());
-
+                    post.getCreateTime(),post.getUpdateTime(),post.isPostShare());
+            if (post.isPostShare()) {
+                PostShareDTO postShareDTO = new PostShareDTO();
+                Post postShare = post.getPostShared();
+                Users userCreate = postShare.getUsers();
+                postShareDTO.setPostShared(postShare);
+                postShareDTO.setUserCreateId(userCreate.getId());
+                postShareDTO.setFirstName(userCreate.getFirstName());
+                postShareDTO.setLastName(userCreate.getLastName());
+                postShareDTO.setAvatar(userCreate.getImageUrl());
+                postDTO.setPostShared(postShareDTO);
+            }
             boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(post.getId(),userId) != null;
             postDTO.setLiked(check);
 
@@ -216,8 +226,19 @@ public class PostServiceIplm implements PostService {
         posts.forEach(post -> {
             PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
                     post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
-                    post.getCreateTime(),post.getUpdateTime(),post.isPostShare(),
-                    post.getPostShared() == null ? null:post.getPostShared());
+                    post.getCreateTime(),post.getUpdateTime(),post.isPostShare());
+
+            if (post.isPostShare()) {
+                PostShareDTO postShareDTO = new PostShareDTO();
+                Post postShare = post.getPostShared();
+                Users userCreate = postShare.getUsers();
+                postShareDTO.setPostShared(postShare);
+                postShareDTO.setUserCreateId(userCreate.getId());
+                postShareDTO.setFirstName(userCreate.getFirstName());
+                postShareDTO.setLastName(userCreate.getLastName());
+                postShareDTO.setAvatar(userCreate.getImageUrl());
+                postDTO.setPostShared(postShareDTO);
+            }
 
             UserDTO userDTO = new UserDTO();
             userDTO.setId(post.getUsers().getId());

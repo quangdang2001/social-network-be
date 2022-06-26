@@ -153,6 +153,9 @@ public class UserController {
     @GetMapping("/user/search")
     public ResponseEntity<?> searchUser(@RequestParam String keyword){
         Set<Users> users = userService.searchUser(keyword);
+        users.forEach(user ->{
+            user.setPassword(null);
+        });
         return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
                 users));
     }
