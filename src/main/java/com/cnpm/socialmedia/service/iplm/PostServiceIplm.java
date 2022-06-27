@@ -147,22 +147,24 @@ public class PostServiceIplm implements PostService {
     public NotificationPayload sharePost(PostDTO postDTO){
         Post post = new Post();
         Users userCreate = userService.findById(postDTO.getUserId());
-        Post postParent = findPostById(postDTO.getPostSharedId());
-        postParent.setCountShated(post.getCountShated()+1);
-        post.setPostShare(true);
-        post.setContent(postDTO.getContent());
-        post.setUsers(userCreate);
-        post.setPostShared(postParent);
-        post.setCreateTime(new Date());
+        if (userCreate.isEnable()) {
+            Post postParent = findPostById(postDTO.getPostSharedId());
+            postParent.setCountShated(post.getCountShated() + 1);
+            post.setPostShare(true);
+            post.setContent(postDTO.getContent());
+            post.setUsers(userCreate);
+            post.setPostShared(postParent);
+            post.setCreateTime(new Date());
 
-        save(post);
-        save(postParent);
-        Users users = post.getUsers();
-        if (!post.getPostShared().getUsers().getId().equals(postDTO.getUserId())) {
-            String content = String.format("%s %s shared your post.", users.getLastName(), users.getFirstName());
-            Notification notification = notificationService.sendNotificationPost(post.getPostShared(), userCreate, content);
-            notificationService.save(notification);
-            return Convert.convertNotificationToNotifiPayload(notification);
+            save(post);
+            save(postParent);
+            Users users = post.getUsers();
+            if (!post.getPostShared().getUsers().getId().equals(postDTO.getUserId())) {
+                String content = String.format("%s %s shared your post.", users.getLastName(), users.getFirstName());
+                Notification notification = notificationService.sendNotificationPost(post.getPostShared(), userCreate, content);
+                notificationService.save(notification);
+                return Convert.convertNotificationToNotifiPayload(notification);
+            }
         }
         return null;
     }
@@ -202,12 +204,16 @@ public class PostServiceIplm implements PostService {
 
     @Override
     public Post saveNewPost(PostDTO postDTO) {
-        Post post = new Post();
-        post.setContent(postDTO.getContent());
-        post.setImgUrl(postDTO.getUrlImage());
-        post.setUsers(userService.findById(postDTO.getUserId()));
-        post.setPostShared(null);
-        save(post);
+        Users users = userService.findById(postDTO.getUserId());
+        Post post = null;
+        if (users.isEnable()) {
+            post = new Post();
+            post.setContent(postDTO.getContent());
+            post.setImgUrl(postDTO.getUrlImage());
+            post.setUsers(users);
+            post.setPostShared(null);
+            save(post);
+        }
         return post;
     }
 

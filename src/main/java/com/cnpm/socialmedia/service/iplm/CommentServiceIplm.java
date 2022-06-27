@@ -52,7 +52,7 @@ public class CommentServiceIplm implements CommentService {
 
     @Override
     public List<Comment> findCmtByPostId(Long postId, Pageable pageable) {
-        return commentRepo.findCommentByPost_IdOrderByCreateTimeDesc(postId,pageable);
+        return commentRepo.findCommentByPost_IdAndCommentParrentOrderByCreateTimeDesc(postId,null,pageable);
     }
 
 //    @Override
@@ -68,24 +68,27 @@ public class CommentServiceIplm implements CommentService {
         Comment cmtParent = findById(cmtDTO.getCmtId());
         Post post = postService.findPostById(cmtDTO.getPostId());
         Users users = userService.findById(cmtDTO.getUserId());
-        comment.setContent(cmtDTO.getContent());
-        comment.setCommentPost(false);
-        comment.setCreateTime(new Date());
-        comment.setUsers(users);
-        comment.setPost(post);
-        comment.setCommentParrent(cmtParent);
-        cmtParent.setCountReply(cmtParent.getCountReply()+1);
-        save(cmtParent);
-        save(comment);
-        CmtResponse cmtDTO1 = Convert.convertCmtToRes(users,comment);
+        if (users.isEnable()) {
+            comment.setContent(cmtDTO.getContent());
+            comment.setCommentPost(false);
+            comment.setCreateTime(new Date());
+            comment.setUsers(users);
+            comment.setPost(post);
+            comment.setCommentParrent(cmtParent);
+            cmtParent.setCountReply(cmtParent.getCountReply() + 1);
+            save(cmtParent);
+            save(comment);
+            CmtResponse cmtDTO1 = Convert.convertCmtToRes(users, comment);
 
-        if (!cmtParent.getUsers().getId().equals(cmtDTO.getUserId())) {
-            String content = String.format("%s %s replied your comment.", users.getFirstName(), users.getLastName());
-            Notification notification = notificationService.sendNotificationPost(post, users, content);
-            NotificationPayload notificationPayload = Convert.convertNotificationToNotifiPayload(notification);
-            cmtDTO1.setNotificationPayload(notificationPayload);
+            if (!cmtParent.getUsers().getId().equals(cmtDTO.getUserId())) {
+                String content = String.format("%s %s replied your comment.", users.getFirstName(), users.getLastName());
+                Notification notification = notificationService.sendNotificationPost(post, users, content);
+                NotificationPayload notificationPayload = Convert.convertNotificationToNotifiPayload(notification);
+                cmtDTO1.setNotificationPayload(notificationPayload);
+            }
+            return cmtDTO1;
         }
-        return cmtDTO1;
+        return null;
     }
 
     @Override
@@ -93,21 +96,24 @@ public class CommentServiceIplm implements CommentService {
         Comment comment = new Comment();
         Post post = postService.findPostById(cmtDTO.getPostId());
         Users users = userService.findById(cmtDTO.getUserId());
-        comment.setContent(cmtDTO.getContent());
-        comment.setPost(post);
-        comment.setUsers(users);
-        comment.setCreateTime(new Date());
-        post.setCountCmted(post.getCountCmted()+1);
-        commentRepo.save(comment);
-        postService.save(post);
-        CmtResponse cmtDTO1 = Convert.convertCmtToRes(users, comment);
-        if (!post.getUsers().getId().equals(cmtDTO.getUserId())) {
-            String content = String.format("%s %s commented in your post.", users.getFirstName(), users.getLastName());
-            Notification notification = notificationService.sendNotificationPost(post, users, content);
-            NotificationPayload notificationPayload = Convert.convertNotificationToNotifiPayload(notification);
-            cmtDTO1.setNotificationPayload(notificationPayload);
+        if (users.isEnable()) {
+            comment.setContent(cmtDTO.getContent());
+            comment.setPost(post);
+            comment.setUsers(users);
+            comment.setCreateTime(new Date());
+            post.setCountCmted(post.getCountCmted() + 1);
+            commentRepo.save(comment);
+            postService.save(post);
+            CmtResponse cmtDTO1 = Convert.convertCmtToRes(users, comment);
+            if (!post.getUsers().getId().equals(cmtDTO.getUserId())) {
+                String content = String.format("%s %s commented in your post.", users.getFirstName(), users.getLastName());
+                Notification notification = notificationService.sendNotificationPost(post, users, content);
+                NotificationPayload notificationPayload = Convert.convertNotificationToNotifiPayload(notification);
+                cmtDTO1.setNotificationPayload(notificationPayload);
+            }
+            return cmtDTO1;
         }
-        return cmtDTO1;
+        return null;
     }
 
     @Override

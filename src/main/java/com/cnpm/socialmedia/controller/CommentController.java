@@ -90,6 +90,11 @@ public class CommentController {
                 cmtResponse));
     }
 
+    @DeleteMapping("/comment/{cmtId}")
+    public ResponseEntity<?> deleteCmt(@PathVariable Long cmtId){
+        commentService.deleteCommentById(cmtId);
+        return ResponseEntity.ok(new ResponseDTO(true,"Success",null));
+    }
 
 
 }
