@@ -3,6 +3,7 @@ package com.cnpm.socialmedia.controller;
 
 import com.cnpm.socialmedia.dto.MessageDTO;
 import com.cnpm.socialmedia.dto.ResponseDTO;
+import com.cnpm.socialmedia.dto.UserChatDTO;
 import com.cnpm.socialmedia.model.Message;
 import com.cnpm.socialmedia.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,15 @@ public class MessageController {
             return ResponseEntity.ok(new ResponseDTO(true,"Success",null));
         }
         else return ResponseEntity.ok(new ResponseDTO(false,"Failed",null));
+    }
+    @GetMapping("/message/conversations")
+    private ResponseEntity<?> getConversations(@RequestParam Long userId,
+                                               @RequestParam int page,
+                                               @RequestParam int size){
+        List<UserChatDTO> userChatDTOS = messageService.findUserChat(userId,page,size);
+        return ResponseEntity.ok(
+                new ResponseDTO(true,"Success",userChatDTOS));
+
     }
 
 }

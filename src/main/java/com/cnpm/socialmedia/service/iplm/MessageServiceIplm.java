@@ -2,6 +2,7 @@ package com.cnpm.socialmedia.service.iplm;
 
 import com.cnpm.socialmedia.dto.MessageDTO;
 import com.cnpm.socialmedia.dto.MessageSendDTO;
+import com.cnpm.socialmedia.dto.UserChatDTO;
 import com.cnpm.socialmedia.model.Message;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.MessageRepo;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -61,7 +63,7 @@ public class MessageServiceIplm implements MessageService {
             }
 
         });
-
+        Collections.reverse(messageDTOS);
         return messageDTOS;
     }
 
@@ -75,5 +77,17 @@ public class MessageServiceIplm implements MessageService {
             log.info("Message exception: ",e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public List<UserChatDTO> findUserChat(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        List<Users> users = messageRepo.findUserChat(userId,pageable);
+        List<UserChatDTO> userChatDTOS = new ArrayList<>();
+        users.forEach(user ->{
+            userChatDTOS.add(new UserChatDTO(user.getId(),user.getFirstName(),user.getLastName(),user.getImageUrl()
+            ,user.getEmail()));
+        });
+        return userChatDTOS;
     }
 }

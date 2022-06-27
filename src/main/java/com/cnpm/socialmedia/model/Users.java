@@ -30,6 +30,7 @@ public class Users {
     @Column(nullable = false,unique = true)
     private String email;
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
     private int gender;
     private String bio;

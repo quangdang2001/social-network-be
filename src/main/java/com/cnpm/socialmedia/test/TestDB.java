@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.test;
 import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.model.Users;
+import com.cnpm.socialmedia.repo.MessageRepo;
 import com.cnpm.socialmedia.repo.PostRepo;
 import com.cnpm.socialmedia.repo.UserRepo;
 import com.cnpm.socialmedia.service.PostService;
@@ -9,6 +10,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -26,12 +29,14 @@ public class TestDB {
     private UserService userService;
     @Autowired
     private PostRepo postRepo;
+    @Autowired
+    private MessageRepo messageRepo;
 
 
     @Test
     public void test(){
-        System.out.println(userRepo.searchUserFirstLastName("quangg").size());
-        System.out.println(userRepo.searchUserLastFirstName("quangg").size());
+        Pageable pageable = PageRequest.of(0,10);
+        System.out.println(messageRepo.findUserChat(Long.parseLong("1"),pageable));
 
     }
     @Test
