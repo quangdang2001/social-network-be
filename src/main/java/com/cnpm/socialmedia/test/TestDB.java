@@ -36,7 +36,7 @@ public class TestDB {
     @Test
     public void test(){
         Pageable pageable = PageRequest.of(0,10);
-        System.out.println(messageRepo.findUserChat(Long.parseLong("1"),pageable));
+        System.out.println(messageRepo.findSenderChat(Long.parseLong("1"),pageable));
 
     }
     @Test

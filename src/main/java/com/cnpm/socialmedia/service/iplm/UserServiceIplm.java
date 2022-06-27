@@ -234,6 +234,11 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     }
 
     @Override
+    public List<Users> findAllUsersByListUserId(List<Long> id) {
+        return userRepo.findAllByIdIn(id);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Users user = findUserByEmail(username);
         if (user != null) {

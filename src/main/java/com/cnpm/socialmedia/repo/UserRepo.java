@@ -12,6 +12,7 @@ import java.util.Set;
 public interface UserRepo extends JpaRepository<Users, Long> {
     Users findUserByEmail(String email);
     List<Users> findAllByCountReportGreaterThan(Integer num);
+    List<Users> findAllByIdIn(List<Long> userIds);
 
     @Query("select u from Users u where u.email like concat('%',:email,'%')")
     List<Users> searchByEmail(String email);

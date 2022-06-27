@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,9 +83,20 @@ public class MessageServiceIplm implements MessageService {
     @Override
     public List<UserChatDTO> findUserChat(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page,size);
-        List<Users> users = messageRepo.findUserChat(userId,pageable);
+        List<Users> usersSender = messageRepo.findSenderChat(userId,pageable);
+        List<Users> userReceiver = messageRepo.findReceiverChat(userId,pageable);
+        int length = userReceiver.size();
+        List<Users> conversations = new ArrayList<>();
+        for (int i=0; i<length;i++){
+            if (!usersSender.get(i).getId().equals(userId)){
+                conversations.add(usersSender.get(i));
+            }else
+                conversations.add(userReceiver.get(i));
+        }
+
+        conversations = conversations.stream().distinct().collect(Collectors.toList());
         List<UserChatDTO> userChatDTOS = new ArrayList<>();
-        users.forEach(user ->{
+        conversations.forEach(user ->{
             userChatDTOS.add(new UserChatDTO(user.getId(),user.getFirstName(),user.getLastName(),user.getImageUrl()
             ,user.getEmail()));
         });
