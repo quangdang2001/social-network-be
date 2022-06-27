@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface UserFollowingService {
     List<UserDTO> findAllFollowingUser(Long userId);
-    List<Long> findAllIdFollowingUser(Long userId);
+    List<Users> findAllIdFollowingUser(Long userId);
     List<UserDTO> findAllFollowerUser(Long userId);
     List<Long> findAllIdFollower(Long userId);
     NotificationPayload save(Users users, Users following);

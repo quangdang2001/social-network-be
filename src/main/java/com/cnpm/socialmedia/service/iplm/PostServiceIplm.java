@@ -48,26 +48,27 @@ public class PostServiceIplm implements PostService {
 
     @Override
     public List<PostDTO> findPostHomePage(Long userId, Integer page, Integer size) {
-        List<Long> usersFollowingId = userFollowingService.findAllIdFollowingUser(userId);
-        usersFollowingId.add(userId);
+        List<Users> usersFollowingId = userFollowingService.findAllIdFollowingUser(userId);
+        Users users = userService.findById(userId);
+        usersFollowingId.add(users);
         Pageable pageable = PageRequest.of(page,size);
-        List<Post> posts =postRepo.findAllByUsers_IdInOrderByCreateTimeDesc(usersFollowingId,pageable);
+        List<Post> posts =postRepo.findAllByUsersInOrderByCreateTimeDesc(usersFollowingId,pageable);
 
-        return  convertPostsToPostDTOs(posts,userId);
+        return  convertPostsToPostDTOs(posts,users);
     }
 
     @Override
     public List<PostDTO> findPostOfUser(Long userId, Integer page, Integer size) {
         List<Post> posts;
         Pageable pageable = PageRequest.of(page,size);
-        posts = postRepo.findAllByUsers_IdOrderByCreateTimeDesc(userId,pageable);
-
+        Users users = userService.findById(userId);
+        posts = postRepo.findAllByUsersOrderByCreateTimeDesc(users,pageable);
         UserDTO userDTO = new UserDTO();
-        userDTO.setId(posts.get(0).getUsers().getId());
-        userDTO.setFirstName(posts.get(0).getUsers().getFirstName());
-        userDTO.setLastName(posts.get(0).getUsers().getLastName());
-        userDTO.setEmail(posts.get(0).getUsers().getEmail());
-        userDTO.setImageUrl(posts.get(0).getUsers().getImageUrl());
+        userDTO.setId(users.getId());
+        userDTO.setFirstName(users.getFirstName());
+        userDTO.setLastName(users.getLastName());
+        userDTO.setEmail(users.getEmail());
+        userDTO.setImageUrl(users.getImageUrl());
 
         List<PostDTO> postDTOS = new ArrayList<>();
 
@@ -86,7 +87,7 @@ public class PostServiceIplm implements PostService {
                 postShareDTO.setAvatar(userCreate.getImageUrl());
                 postDTO.setPostShared(postShareDTO);
             }
-            boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(post.getId(),userId) != null;
+            boolean check = postLikeRepo.findByPostIdAndUserId(post,users) != null;
             postDTO.setLiked(check);
 
             postDTO.setUserCreate(userDTO);
@@ -102,9 +103,10 @@ public class PostServiceIplm implements PostService {
         Users users = userService.findById(userId);
         NotificationPayload notificationPayload = null;
         if (post!=null && users!=null) {
-            boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(postId, userId) != null;
-            PostLike postLike = new PostLike(post,users);
+            boolean check = postLikeRepo.findByPostIdAndUserId(post, users) != null;
+
             if (!check) {
+                PostLike postLike = new PostLike(post,users);
                 post.increaseLike();
                 postLikeRepo.save(postLike);
                 save(post);
@@ -116,6 +118,7 @@ public class PostServiceIplm implements PostService {
                 }
 
             } else {
+                PostLike postLike = new PostLike(post,users);
                 post.decreaseLike();
                 postLikeRepo.delete(postLike);
             }
@@ -227,7 +230,7 @@ public class PostServiceIplm implements PostService {
         return post;
     }
 
-    private List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Long userId){
+    private List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Users user){
         List<PostDTO> postDTOS = new ArrayList<>();
         posts.forEach(post -> {
             PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
@@ -252,8 +255,8 @@ public class PostServiceIplm implements PostService {
             userDTO.setLastName(post.getUsers().getLastName());
             userDTO.setEmail(post.getUsers().getEmail());
             userDTO.setImageUrl(post.getUsers().getImageUrl());
-            if (userId!=null) {
-                boolean check = postLikeRepo.findByPostId_IdAndUserId_Id(post.getId(), userId) != null;
+            if (user!=null) {
+                boolean check = postLikeRepo.findByPostIdAndUserId(post, user) != null;
                 postDTO.setLiked(check);
             }
             postDTO.setUserCreate(userDTO);

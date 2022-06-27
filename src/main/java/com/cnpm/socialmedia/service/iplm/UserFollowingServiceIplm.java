@@ -42,11 +42,11 @@ public class UserFollowingServiceIplm implements UserFollowingService {
     }
 
     @Override
-    public List<Long> findAllIdFollowingUser(Long userId) {
+    public List<Users> findAllIdFollowingUser(Long userId) {
         List<UserFollowing> userFollowings = userFollowingRepo.findAllByUserId_Id(userId);
-        List<Long> usersId = new ArrayList<>();
+        List<Users> usersId = new ArrayList<>();
         userFollowings.forEach(userFollowing -> {
-            usersId.add(userFollowing.getFollowingId().getId());
+            usersId.add(userFollowing.getFollowingId());
         });
         return usersId;
     }
