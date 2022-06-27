@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface MessageRepo extends JpaRepository<Message, Long> {
     List<Message> findBySender_IdAndReceiver_IdOrderByCreateTimeDesc(Long senderId, Long receiverId, Pageable pageable);
+    List<Message> findAllByRoomOrderByCreateTimeDesc(String room, Pageable pageable);
 }

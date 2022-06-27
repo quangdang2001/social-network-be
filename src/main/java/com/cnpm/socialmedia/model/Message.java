@@ -26,4 +26,5 @@ public class Message {
     private Users sender;
     @ManyToOne(fetch = FetchType.LAZY)
     private Users receiver;
+    private String room;
 }

@@ -38,6 +38,7 @@ public class MessageServiceIplm implements MessageService {
             message.setCreateTime(new Date());
             message.setSender(usersSend);
             message.setReceiver(usersReceiver);
+            message.setRoom(String.valueOf(messageDTO.getReceiverId()+messageDTO.getSenderId()));
             return messageRepo.save(message);
         }
         return null;
@@ -46,12 +47,20 @@ public class MessageServiceIplm implements MessageService {
     @Override
     public List<MessageDTO> getMessage(Long senderId, Long receiverId, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page,size);
-        List<Message> messages = messageRepo.findBySender_IdAndReceiver_IdOrderByCreateTimeDesc(senderId,receiverId,pageable);
+        String room = String.valueOf(senderId+receiverId);
+        List<Message> messages = messageRepo.findAllByRoomOrderByCreateTimeDesc(room,pageable);
         List<MessageDTO> messageDTOS = new ArrayList<>();
         messages.forEach(message -> {
-            messageDTOS.add(new MessageDTO(message.getId(),message.getMessage(),message.getCreateTime(),senderId,receiverId));
-        });
+            if (message.getReceiver().getId() != receiverId){
+                messageDTOS.add(new MessageDTO(message.getId(),message.getMessage(),
+                        message.getCreateTime(),message.getSender().getId(),message.getReceiver().getId(),null));
+            }
+            else {
+                messageDTOS.add(new MessageDTO(message.getId(),message.getMessage(),
+                        message.getCreateTime(),message.getSender().getId(),message.getReceiver().getId(),message.getReceiver().getImageUrl()));
+            }
 
+        });
 
         return messageDTOS;
     }
