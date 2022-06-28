@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +25,10 @@ public class Post {
     private Long id;
     @Column(nullable = false)
     private String content;
-    private String imgUrl;
+
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private List<ImagePost> images;
+
     private int countLiked = 0;
     private int countCmted = 0;
     private int countShated = 0;

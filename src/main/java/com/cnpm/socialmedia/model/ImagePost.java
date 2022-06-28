@@ -9,16 +9,17 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Data
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 public class ImagePost {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imgPostId;
-    private String image;
+    private String urlImage;
 
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private Post post;
 
 }

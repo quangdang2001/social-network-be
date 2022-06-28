@@ -1,5 +1,6 @@
 package com.cnpm.socialmedia.dto;
 
+import com.cnpm.socialmedia.model.ImagePost;
 import com.cnpm.socialmedia.model.Post;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +16,7 @@ import java.util.Date;
 public class PostDTO {
     private Long id;
     private String content;
-    private String urlImage;
+    private List<ImagePost> images;
     private Long userId;
     private int countLiked = 0;
     private int countCmted = 0;
@@ -27,10 +29,9 @@ public class PostDTO {
     private Long postSharedId;
     private PostShareDTO postShared;
 
-    public PostDTO(Long id, String content, String urlImage, Long userId, int countLiked, int countCmted, int countShated, int countReported, Date createTime, Date updateTime, boolean isPostShare) {
+    public PostDTO(Long id, String content, Long userId, int countLiked, int countCmted, int countShated, int countReported, Date createTime, Date updateTime, boolean isPostShare) {
         this.id = id;
         this.content = content;
-        this.urlImage = urlImage;
         this.userId = userId;
         this.countLiked = countLiked;
         this.countCmted = countCmted;

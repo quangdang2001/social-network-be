@@ -4,11 +4,10 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
 import com.cnpm.socialmedia.dto.PostShareDTO;
+import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
-import com.cnpm.socialmedia.model.Notification;
-import com.cnpm.socialmedia.model.Post;
-import com.cnpm.socialmedia.model.PostLike;
-import com.cnpm.socialmedia.model.Users;
+import com.cnpm.socialmedia.model.*;
+import com.cnpm.socialmedia.repo.ImagePostRepo;
 import com.cnpm.socialmedia.repo.PostLikeRepo;
 import com.cnpm.socialmedia.repo.PostRepo;
 import com.cnpm.socialmedia.service.Cloudinary.CloudinaryUpload;
@@ -19,15 +18,15 @@ import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +39,7 @@ public class PostServiceIplm implements PostService {
     private final UserFollowingService userFollowingService;
     private final UserService userService;
     private final CloudinaryUpload cloudinaryUpload;
+    private final ImagePostRepo imagePostRepo;
 
     @Override
     public Post save(Post post) {
@@ -63,38 +63,9 @@ public class PostServiceIplm implements PostService {
         Pageable pageable = PageRequest.of(page,size);
         Users users = userService.findById(userId);
         posts = postRepo.findAllByUsersOrderByCreateTimeDesc(users,pageable);
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(users.getId());
-        userDTO.setFirstName(users.getFirstName());
-        userDTO.setLastName(users.getLastName());
-        userDTO.setEmail(users.getEmail());
-        userDTO.setImageUrl(users.getImageUrl());
 
-        List<PostDTO> postDTOS = new ArrayList<>();
 
-        posts.forEach(post -> {
-            PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
-                    post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
-                    post.getCreateTime(),post.getUpdateTime(),post.isPostShare());
-            if (post.isPostShare()) {
-                PostShareDTO postShareDTO = new PostShareDTO();
-                Post postShare = post.getPostShared();
-                Users userCreate = postShare.getUsers();
-                postShareDTO.setPostShared(postShare);
-                postShareDTO.setUserCreateId(userCreate.getId());
-                postShareDTO.setFirstName(userCreate.getFirstName());
-                postShareDTO.setLastName(userCreate.getLastName());
-                postShareDTO.setAvatar(userCreate.getImageUrl());
-                postDTO.setPostShared(postShareDTO);
-            }
-            boolean check = postLikeRepo.findByPostIdAndUserId(post,users) != null;
-            postDTO.setLiked(check);
-
-            postDTO.setUserCreate(userDTO);
-            postDTOS.add(postDTO);
-        });
-
-        return postDTOS;
+        return convertPostsToPostDTOs(posts,users);
     }
 
     @Override
@@ -173,6 +144,25 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
+    public String upImagePost(MultipartFile file, Long postId) throws IOException {
+        Post post = findPostById(postId);
+        if (!file.isEmpty()){
+            Map params = ObjectUtils.asMap(
+                    "resource_type", "auto",
+                    "folder", "postImages"
+            );
+            Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file),params);
+            ImagePost imagePost = new ImagePost();
+            imagePost.setPost(post);
+            imagePost.setUrlImage((String) map.get("secure_url"));
+
+            imagePostRepo.save(imagePost);
+            return map.get("secure_url").toString();
+        }
+        return null;
+    }
+
+    @Override
     public Post findPostById(Long id) {
         Optional<Post> post = postRepo.findById(id);
         return post.orElse(null);
@@ -181,28 +171,25 @@ public class PostServiceIplm implements PostService {
     @Override
     public void deletePostById(Long id) throws IOException {
         Post post = findPostById(id);
-        if (post.getImgUrl()!= null) {
-            cloudinaryUpload.cloudinary().uploader().destroy("postImages/" + cloudinaryUpload.getPublicId(post.getImgUrl()),
-                    ObjectUtils.asMap("resource_type", "image"));
+        List<ImagePost> images = post.getImages();
+        if (images!= null) {
+            images.forEach(image ->{
+                try {
+                    cloudinaryUpload.cloudinary().uploader().destroy("postImages/" + cloudinaryUpload.getPublicId(image.getUrlImage()),
+                            ObjectUtils.asMap("resource_type", "image"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
         }
         postRepo.deleteById(id);
     }
 
     @Override
-    public PostDTO findPostDTOById(Long id) {
+    public PostDTO findPostDTOById(Long id,Long userId) {
         Post post = findPostById(id);
-        PostDTO postDTO = new PostDTO();
-        postDTO.setUserId(post.getUsers().getId());
-        postDTO.setId(post.getId());
-        postDTO.setContent(post.getContent());
-        postDTO.setUrlImage(post.getImgUrl());
-        postDTO.setCountCmted(post.getCountCmted());
-        postDTO.setCountLiked(post.getCountLiked());
-        postDTO.setCountShated(post.getCountShated());
-        postDTO.setCountReported(post.getCountReported());
-        postDTO.setCreateTime(post.getCreateTime());
-        postDTO.setUpdateTime(post.getUpdateTime());
-        return postDTO;
+        Users users = userService.findById(userId);
+        return convertPostToPostDTO(post,users);
     }
 
     @Override
@@ -212,7 +199,6 @@ public class PostServiceIplm implements PostService {
         if (users.isEnable()) {
             post = new Post();
             post.setContent(postDTO.getContent());
-            post.setImgUrl(postDTO.getUrlImage());
             post.setUsers(users);
             post.setPostShared(null);
             save(post);
@@ -224,8 +210,6 @@ public class PostServiceIplm implements PostService {
     public Post updatePost(PostDTO postDTO) {
         Post post = findPostById(postDTO.getId());
         post.setContent(postDTO.getContent());
-        post.setImgUrl(post.getImgUrl());
-
         save(post);
         return post;
     }
@@ -233,36 +217,40 @@ public class PostServiceIplm implements PostService {
     private List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Users user){
         List<PostDTO> postDTOS = new ArrayList<>();
         posts.forEach(post -> {
-            PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getImgUrl(),post.getUsers().getId(),
-                    post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
-                    post.getCreateTime(),post.getUpdateTime(),post.isPostShare());
-
-            if (post.isPostShare()) {
-                PostShareDTO postShareDTO = new PostShareDTO();
-                Post postShare = post.getPostShared();
-                Users userCreate = postShare.getUsers();
-                postShareDTO.setPostShared(postShare);
-                postShareDTO.setUserCreateId(userCreate.getId());
-                postShareDTO.setFirstName(userCreate.getFirstName());
-                postShareDTO.setLastName(userCreate.getLastName());
-                postShareDTO.setAvatar(userCreate.getImageUrl());
-                postDTO.setPostShared(postShareDTO);
-            }
-
-            UserDTO userDTO = new UserDTO();
-            userDTO.setId(post.getUsers().getId());
-            userDTO.setFirstName(post.getUsers().getFirstName());
-            userDTO.setLastName(post.getUsers().getLastName());
-            userDTO.setEmail(post.getUsers().getEmail());
-            userDTO.setImageUrl(post.getUsers().getImageUrl());
-            if (user!=null) {
-                boolean check = postLikeRepo.findByPostIdAndUserId(post, user) != null;
-                postDTO.setLiked(check);
-            }
-            postDTO.setUserCreate(userDTO);
-            postDTOS.add(postDTO);
+            postDTOS.add(convertPostToPostDTO(post,user));
         });
         return postDTOS;
+    }
+
+    private PostDTO convertPostToPostDTO(Post post,Users user){
+        PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getUsers().getId(),
+                post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
+                post.getCreateTime(),post.getUpdateTime(),post.isPostShare());
+
+        if (post.isPostShare()) {
+            PostShareDTO postShareDTO = new PostShareDTO();
+            Post postShare = post.getPostShared();
+            Users userCreate = postShare.getUsers();
+            postShareDTO.setPostShared(postShare);
+            postShareDTO.setUserCreateId(userCreate.getId());
+            postShareDTO.setFirstName(userCreate.getFirstName());
+            postShareDTO.setLastName(userCreate.getLastName());
+            postShareDTO.setAvatar(userCreate.getImageUrl());
+            postDTO.setPostShared(postShareDTO);
+        }
+        postDTO.setImages(post.getImages());
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(post.getUsers().getId());
+        userDTO.setFirstName(post.getUsers().getFirstName());
+        userDTO.setLastName(post.getUsers().getLastName());
+        userDTO.setEmail(post.getUsers().getEmail());
+        userDTO.setImageUrl(post.getUsers().getImageUrl());
+        if (user!=null) {
+            boolean check = postLikeRepo.findByPostIdAndUserId(post, user) != null;
+            postDTO.setLiked(check);
+        }
+        postDTO.setUserCreate(userDTO);
+        return postDTO;
     }
 
 

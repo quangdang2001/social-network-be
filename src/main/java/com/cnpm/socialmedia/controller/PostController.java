@@ -41,12 +41,11 @@ import java.util.Map;
 public class PostController {
 
     private final PostService postService;
-    private final CloudinaryUpload cloudinaryUpload;
-
 
     @GetMapping("/post/{id}")
-    public ResponseEntity<?> getPostById(@PathVariable Long id) throws ParseException {
-        PostDTO postDTO = postService.findPostDTOById(id);
+    public ResponseEntity<?> getPostById(@RequestParam Long postId,
+                                         @RequestParam Long userId) throws ParseException {
+        PostDTO postDTO = postService.findPostDTOById(postId,userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                 postDTO));
@@ -64,18 +63,9 @@ public class PostController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> upImg(@RequestParam(value = "img")MultipartFile file,
                                    @RequestParam Long postId) throws IOException {
-        Post post = postService.findPostById(postId);
-        if (!file.isEmpty()){
-            Map params = ObjectUtils.asMap(
-                    "resource_type", "auto",
-                    "folder", "postImages"
-            );
-            Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file),params);
-            post.setImgUrl((String) map.get("secure_url"));
-            postService.save(post);
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
-                    map.get("secure_url")));
-        }
+        String imgUrl = postService.upImagePost(file, postId);
+        if (imgUrl!=null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(true,"Success",imgUrl));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(false,"Failed",null));
     }
 
