@@ -144,7 +144,7 @@ public class EmailTemplate {
                         "                  style=\"display: inline-block\"\n" +
                         "                >\n" +
                         "                  <img\n" +
-                        "                    src=\"https://c.neh.tw/thumb/f/720/6403431753318400.jpg\"\n" +
+                        "                    src=\"https://logopond.com/logos/ddf4945bf2a1f0b7467b1d72edf7b8d1.png\"\n" +
                         "                    alt=\"Logo\"\n" +
                         "                    border=\"0\"\n" +
                         "                    width=\"48\"\n" +
@@ -244,10 +244,9 @@ public class EmailTemplate {
                         "                \"\n" +
                         "              >\n" +
                         "                <p style=\"margin: 0\">\n" +
-                        "                  Tap the button below to confirm your email address. If you\n" +
-                        "                  didn't create an account with\n" +
-                        "                  <a href=\"https://blogdesire.com\">us</a>, you can safely\n" +
-                        "                  delete this email.\n" +
+                        "                 Hi, <br> We're happy you signed up for Social Network. To start\n" +
+                        "                  exploring the Social Network App and neighborhood,\n" +
+                        "                  please confirm your email address.\n" +
                         "                </p>\n" +
                         "              </td>\n" +
                         "            </tr>\n" +
@@ -304,13 +303,8 @@ public class EmailTemplate {
                         "                \"\n" +
                         "              >\n" +
                         "                <p style=\"margin: 0\">\n" +
-                        "                  If that doesn't work, copy and paste the following link in\n" +
-                        "                  your browser:\n" +
-                        "                </p>\n" +
-                        "                <p style=\"margin: 0\">\n" +
-                        "                  <a href=\"https://blogdesire.com\" target=\"_blank\"\n" +
-                        "                    >https://blogdesire.com/xxx-xxx-xxxx</a\n" +
-                        "                  >\n" +
+                        "                  Welcome to Social Network! <br>\n" +
+                        "                  The Social Network Team\n" +
                         "                </p>\n" +
                         "              </td>\n" +
                         "            </tr>\n" +
@@ -330,8 +324,7 @@ public class EmailTemplate {
                         "                \"\n" +
                         "              >\n" +
                         "                <p style=\"margin: 0\">\n" +
-                        "                  Cheers,<br />\n" +
-                        "                  Social Network Team\n" +
+                        "                  The site is under development, if you encounter any errors please let us know via email, thank you so much.,<br />\n" +
                         "                </p>\n" +
                         "              </td>\n" +
                         "            </tr>\n" +
@@ -374,11 +367,7 @@ public class EmailTemplate {
                         "                  color: #666;\n" +
                         "                \"\n" +
                         "              >\n" +
-                        "                <p style=\"margin: 0\">\n" +
-                        "                  You received this email because we received a request for\n" +
-                        "                  [type_of_action] for your account. If you didn't request\n" +
-                        "                  [type_of_action] you can safely delete this email.\n" +
-                        "                </p>\n" +
+
                         "              </td>\n" +
                         "            </tr>\n" +
                         "            <!-- end permission -->\n" +
@@ -396,14 +385,6 @@ public class EmailTemplate {
                         "                  color: #666;\n" +
                         "                \"\n" +
                         "              >\n" +
-                        "                <p style=\"margin: 0\">\n" +
-                        "                  To stop receiving these emails, you can\n" +
-                        "                  <a href=\"https://sendgrid.com\" target=\"_blank\">unsubscribe</a>\n" +
-                        "                  at any time.\n" +
-                        "                </p>\n" +
-                        "                <p style=\"margin: 0\">\n" +
-                        "                  Paste 1234 S. Broadway St. City, State 12345\n" +
-                        "                </p>\n" +
                         "              </td>\n" +
                         "            </tr>\n" +
                         "            <!-- end unsubscribe -->\n" +
@@ -550,7 +531,7 @@ public class EmailTemplate {
                 "          <tr>\n" +
                 "            <td align=\"center\" valign=\"top\" style=\"padding: 36px 24px;\">\n" +
                 "              <a href=\"https://sendgrid.com\" target=\"_blank\" style=\"display: inline-block;\">\n" +
-                "                <img src=\"https://www.set4adventure.com/uploads/1/2/6/7/126781766/editor/logo-1_2.png?1564681197\" alt=\"Logo\" border=\"0\" width=\"48\" style=\"display: block; width: 48px; max-width: 48px; min-width: 48px;\">\n" +
+                "                <img src=\"https://logopond.com/logos/ddf4945bf2a1f0b7467b1d72edf7b8d1.png\" alt=\"Logo\" border=\"0\" width=\"48\" style=\"display: block; width: 48px; max-width: 48px; min-width: 48px;\">\n" +
                 "              </a>\n" +
                 "            </td>\n" +
                 "          </tr>\n" +
@@ -685,4 +666,5 @@ public class EmailTemplate {
                 "</html>";
         return message;
     }
+
 }

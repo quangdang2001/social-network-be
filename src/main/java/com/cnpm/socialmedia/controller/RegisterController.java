@@ -130,8 +130,7 @@ public class RegisterController {
                         + user.getEmail();
 
         //sendVerificationEmail()
-        String format = String.format("Click the link to verify your account: %s",url);
-        emailSenderService.sendEmail(user.getEmail(),format, "Verify Registration");
+        emailSenderService.sendEmail(user.getEmail(),EmailTemplate.emailRegister(url), "Verify Registration");
         log.info("Click the link to verify your account: {}",
                 url);
     }
