@@ -11,4 +11,5 @@ public class UserChatDTO {
     private String lastName;
     private String avatar;
     private String email;
+    private String room;
 }

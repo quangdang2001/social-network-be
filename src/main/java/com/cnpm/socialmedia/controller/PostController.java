@@ -123,7 +123,7 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "Success", notificationPayload));
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(true, "Success", null));
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "Success", null));
         }
     }
 
