@@ -65,7 +65,7 @@ public class PostController {
                                    @RequestParam Long postId) throws IOException {
         String imgUrl = postService.upImagePost(file, postId);
         if (imgUrl!=null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(true,"Success",imgUrl));
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",imgUrl));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(false,"Failed",null));
     }
 

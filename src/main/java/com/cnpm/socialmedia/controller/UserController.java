@@ -2,10 +2,7 @@ package com.cnpm.socialmedia.controller;
 
 import com.cloudinary.utils.ObjectUtils;
 import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
-import com.cnpm.socialmedia.dto.NotificationDTO;
-import com.cnpm.socialmedia.dto.PersonalPage;
-import com.cnpm.socialmedia.dto.ResponseDTO;
-import com.cnpm.socialmedia.dto.UserDTO;
+import com.cnpm.socialmedia.dto.*;
 import com.cnpm.socialmedia.model.UserFollowing;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.Cloudinary.CloudinaryUpload;
@@ -65,14 +62,14 @@ public class UserController {
     }
     @GetMapping("/user/following")
     public ResponseEntity<?> getFollowing(@RequestParam Long userId){
-        List<UserDTO> userDTOList = userFollowingService.findAllFollowingUser(userId);
+        List<UserFollowDTO> userDTOList = userFollowingService.findAllFollowingUser(userId);
         return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
                 userDTOList));
     }
 
     @GetMapping("/user/follower")
     public ResponseEntity<?> getFollower(@RequestParam Long userId){
-        List<UserDTO> userDTOList = userFollowingService.findAllFollowerUser(userId);
+        List<UserFollowDTO> userDTOList = userFollowingService.findAllFollowerUser(userId);
         return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
                 userDTOList));
     }
@@ -158,6 +155,11 @@ public class UserController {
         });
         return ResponseEntity.ok().body(new ResponseDTO(true,"Success",
                 users));
+    }
+
+    @GetMapping("/user/topFollower")
+    public ResponseEntity<?> getUserTop(){
+        return ResponseEntity.ok(new ResponseDTO(true,"Success",userFollowingService.top10Follower()));
     }
 
 }

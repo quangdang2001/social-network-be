@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.repo;
 
 import com.cnpm.socialmedia.model.Users;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -22,5 +23,9 @@ public interface UserRepo extends JpaRepository<Users, Long> {
 
     @Query("SELECT u from Users u where concat('%',u.firstName,' ',u.lastName,'%') like concat('%',:keyword,'%')")
     List<Users> searchUserFirstLastName(String keyword);
+
+    @Query("select u from Users u order by u.countFollower desc")
+    List<Users> findTop10Follower(Pageable pageable);
+
 
 }
