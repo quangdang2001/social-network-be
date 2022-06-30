@@ -6,6 +6,8 @@ import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.utils.Constant;
+import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -44,10 +46,25 @@ public class AdminController {
         }
     }
     @PostMapping("/user")
-    public ResponseEntity<?> registerAdmin(@RequestBody Users users){
-        users.setPassword(passwordEncoder.encode(users.getPassword()));
-        userService.save(users);
-        return ResponseEntity.ok(users);
+    public ResponseEntity<?> registerAdmin(@RequestBody UserDTO userDTO){
+        Users user;
+        user = userService.findUserByEmail(userDTO.getEmail());
+        if (user!=null){
+            return null;
+        }
+        user = new Users();
+        user.setFirstName(Convert.formatName(userDTO.getFirstName()));
+        user.setLastName(Convert.formatName(userDTO.getLastName()));
+        user.setAddress(userDTO.getAddress());
+        user.setBio(userDTO.getBio());
+        user.setEmail(userDTO.getEmail());
+        user.setGender(userDTO.getGender());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setBirthDay(userDTO.getBirthDay());
+        user.setEnable(true);
+        user.setRole(Constant.ROLE_ADMIN);
+        userService.save(user);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/report/user")
