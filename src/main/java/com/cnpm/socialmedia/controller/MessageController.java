@@ -25,10 +25,10 @@ public class MessageController {
 
     @PostMapping("/message")
     private ResponseEntity<?> sendMessage(@RequestBody MessageDTO messageDTO){
-        Message message =messageService.sendMessage(messageDTO);
+        MessageDTO message =messageService.sendMessage(messageDTO);
         if (message!=null){
-            messageDTO.setCreateTime(new Date());
-            return ResponseEntity.ok(new ResponseDTO(true,"Success",messageDTO));
+
+            return ResponseEntity.ok(new ResponseDTO(true,"Success",message));
         }else {
             return ResponseEntity.ok(new ResponseDTO(false,"Failed",null));
         }

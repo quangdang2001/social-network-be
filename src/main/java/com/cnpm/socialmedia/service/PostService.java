@@ -26,10 +26,7 @@ public interface PostService {
     List<PostDTO> findPostOfUser(Long userId, Integer page, Integer size);
     NotificationPayload likePost(Long postId, Long userId);
     Boolean reportPost(Long postId);
-
     List<Post> findPostReported();
-
     NotificationPayload sharePost(PostDTO postDTO);
-
     String upImagePost(MultipartFile file, Long postId) throws IOException;
 }

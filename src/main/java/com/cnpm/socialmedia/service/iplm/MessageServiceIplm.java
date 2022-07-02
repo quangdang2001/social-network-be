@@ -32,37 +32,37 @@ public class MessageServiceIplm implements MessageService {
 
 
     @Override
-    public Message sendMessage(MessageDTO messageDTO) {
+    public MessageDTO sendMessage(MessageDTO messageDTO) {
         Message message = new Message();
         Users usersSend = userService.findById(messageDTO.getSenderId());
         Users usersReceiver = userService.findById(messageDTO.getReceiverId());
-        if (usersSend != null && usersReceiver !=null) {
+        if (usersSend != null && usersReceiver != null) {
             message.setMessage(messageDTO.getMessage());
             message.setCreateTime(new Date());
             message.setSender(usersSend);
             message.setReceiver(usersReceiver);
-            message.setRoom(String.valueOf(messageDTO.getReceiverId()+messageDTO.getSenderId()));
-            return messageRepo.save(message);
+            Long receiverId = messageDTO.getReceiverId();
+            Long senderId = messageDTO.getSenderId();
+            message.setRoom(getRoom(receiverId, senderId));
+            messageRepo.save(message);
+            messageDTO.setRoom(getRoom(receiverId, senderId));
+            messageDTO.setCreateTime(new Date());
+            return messageDTO;
+
         }
         return null;
     }
 
     @Override
     public List<MessageDTO> getMessage(Long senderId, Long receiverId, Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page,size);
-        String room = String.valueOf(senderId+receiverId);
-        List<Message> messages = messageRepo.findAllByRoomOrderByCreateTimeDesc(room,pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        String room = getRoom(receiverId, senderId);
+        List<Message> messages = messageRepo.findAllByRoomOrderByCreateTimeDesc(room, pageable);
         List<MessageDTO> messageDTOS = new ArrayList<>();
         messages.forEach(message -> {
-            if (message.getReceiver().getId() != receiverId){
-                messageDTOS.add(new MessageDTO(message.getId(),message.getMessage(),
-                        message.getCreateTime(),message.getSender().getId(),message.getReceiver().getId(),null));
-            }
-            else {
-                messageDTOS.add(new MessageDTO(message.getId(),message.getMessage(),
-                        message.getCreateTime(),message.getSender().getId(),message.getReceiver().getId(),message.getReceiver().getImageUrl()));
-            }
-
+            messageDTOS.add(new MessageDTO(message.getId(), message.getMessage(),
+                    message.getCreateTime(), message.getSender().getId(),
+                    message.getReceiver().getId(), message.getSender().getImageUrl(), room));
         });
         Collections.reverse(messageDTOS);
         return messageDTOS;
@@ -74,33 +74,37 @@ public class MessageServiceIplm implements MessageService {
         try {
             messageRepo.deleteById(messageId);
             return true;
-        }catch (Exception e){
-            log.info("Message exception: ",e.getMessage());
+        } catch (Exception e) {
+            log.info("Message exception: ", e.getMessage());
             return false;
         }
     }
 
     @Override
     public List<UserChatDTO> findUserChat(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page,size);
-        List<Users> usersSender = messageRepo.findSenderChat(userId,pageable);
-        List<Users> userReceiver = messageRepo.findReceiverChat(userId,pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        List<Users> usersSender = messageRepo.findSenderChat(userId, pageable);
+        List<Users> userReceiver = messageRepo.findReceiverChat(userId, pageable);
         int length = userReceiver.size();
         List<Users> conversations = new ArrayList<>();
-        for (int i=0; i<length;i++){
-            if (!usersSender.get(i).getId().equals(userId)){
+        for (int i = 0; i < length; i++) {
+            if (!usersSender.get(i).getId().equals(userId)) {
                 conversations.add(usersSender.get(i));
-            }else
+            } else
                 conversations.add(userReceiver.get(i));
         }
 
         conversations = conversations.stream().distinct().collect(Collectors.toList());
         conversations.forEach(conversation -> System.out.println(conversation.getEmail()));
         List<UserChatDTO> userChatDTOS = new ArrayList<>();
-        conversations.forEach(user ->{
-            userChatDTOS.add(new UserChatDTO(user.getId(),user.getFirstName(),user.getLastName(),user.getImageUrl()
-            ,user.getEmail(),String.valueOf(userId+user.getId())));
+        conversations.forEach(user -> {
+            userChatDTOS.add(new UserChatDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getImageUrl()
+                    , user.getEmail(), getRoom(userId, user.getId())));
         });
         return userChatDTOS;
+    }
+
+    public String getRoom(Long receiverId, Long senderId) {
+        return String.valueOf(receiverId + senderId) + String.valueOf(receiverId * senderId);
     }
 }

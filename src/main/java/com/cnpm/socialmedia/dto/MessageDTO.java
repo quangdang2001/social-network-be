@@ -15,7 +15,8 @@ public class MessageDTO {
     private Date createTime;
     private Long senderId;
     private Long receiverId;
-    private String receiverAvatar;
+    private String senderAvatar;
+    private String room;
 
     @Data
     @AllArgsConstructor
