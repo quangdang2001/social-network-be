@@ -65,8 +65,8 @@ public class RegisterController {
                                           HttpServletRequest request) throws MessagingException {
         VerificationToken verificationToken
                 = userService.SendToken(email);
-        Users user = verificationToken.getUser();
-        resendVerificationTokenMail(user, applicationUrl(request), verificationToken);
+
+        resendVerificationTokenMail(email, applicationUrl(request), verificationToken);
         return ResponseEntity.ok(new ResponseDTO(true,"Verification Link Sent",
                 null));
     }
@@ -115,22 +115,22 @@ public class RegisterController {
                     null));
         }
         //Save New Password
-        userService.changePassword(user,passwordDTO.getNewPassword());
+        userService.changePassword(user, passwordDTO.getNewPassword());
         return ResponseEntity.ok().body(new ResponseDTO(true,"Password Changed Successfully",
                 null));
     }
 
 
-    private void resendVerificationTokenMail(Users user, String applicationUrl, VerificationToken verificationToken) throws MessagingException {
+    private void resendVerificationTokenMail(String email, String applicationUrl, VerificationToken verificationToken) throws MessagingException {
         String url =
                 applicationUrl
                         + "/api/verifyRegistration?token="
                         + verificationToken.getToken()
                         + "&email="
-                        + user.getEmail();
+                        + email;
 
         //sendVerificationEmail()
-        emailSenderService.sendEmail(user.getEmail(),EmailTemplate.emailRegister(url), "Verify Registration");
+        emailSenderService.sendEmail(email,EmailTemplate.emailRegister(url), "Verify Registration");
         log.info("Click the link to verify your account: {}",
                 url);
     }

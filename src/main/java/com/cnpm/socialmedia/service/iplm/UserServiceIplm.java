@@ -47,8 +47,8 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     @Override
     public Users saveRegister(UserDTO userDTO) {
         Users user;
-        user = findUserByEmail(userDTO.getEmail());
-        if (user!=null){
+        Boolean check = userRepo.existsByEmail(userDTO.getEmail());
+        if (check){
             return null;
         }
         user = new Users();

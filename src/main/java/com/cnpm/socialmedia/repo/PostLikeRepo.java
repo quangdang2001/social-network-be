@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostLikeRepo extends JpaRepository<PostLike,Long> {
     PostLike findByPostIdAndUserId(Post postId, Users userId);
-
+    Boolean existsByPostIdAndUserId(Post postId, Users userId);
 }
