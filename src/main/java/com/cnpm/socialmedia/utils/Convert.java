@@ -21,7 +21,7 @@ public class Convert {
             File newDir = new File(pathImg);
             newDir.mkdir();
         }
-        File convFile = new File(pathImg +file.getOriginalFilename());
+        File convFile = new File(pathImg+"/" +file.getOriginalFilename());
         FileOutputStream fos = new FileOutputStream(convFile);
         fos.write(file.getBytes());
         fos.close();

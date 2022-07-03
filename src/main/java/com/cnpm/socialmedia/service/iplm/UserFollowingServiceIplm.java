@@ -98,7 +98,7 @@ public class UserFollowingServiceIplm implements UserFollowingService {
 
     @Override
     public List<UserFollowDTO> top10Follower() {
-        Pageable pageable = PageRequest.of(0,10);
+        Pageable pageable = PageRequest.of(0,5);
         List<Users> users =  userRepo.findTop10Follower(pageable);
 
         List<UserFollowDTO> userFollowDTOS = new ArrayList<>();

@@ -42,7 +42,7 @@ public class PostController {
 
     private final PostService postService;
 
-    @GetMapping("/post/{id}")
+    @GetMapping("/post")
     public ResponseEntity<?> getPostById(@RequestParam Long postId,
                                          @RequestParam Long userId) throws ParseException {
         PostDTO postDTO = postService.findPostDTOById(postId,userId);
@@ -116,7 +116,6 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "Success", null));
         }
     }
-
 
 
 

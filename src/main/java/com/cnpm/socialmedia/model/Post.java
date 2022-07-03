@@ -26,7 +26,7 @@ public class Post {
     @Column(nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private List<ImagePost> images;
 
     private int countLiked = 0;

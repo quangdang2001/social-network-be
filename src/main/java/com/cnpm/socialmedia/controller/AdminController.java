@@ -10,6 +10,7 @@ import com.cnpm.socialmedia.utils.Constant;
 import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -88,5 +89,11 @@ public class AdminController {
         List<Post> posts = postService.findPostReported();
         return ResponseEntity.ok(new ResponseDTO(true,"Success",posts));
 
+    }
+    @GetMapping("/post")
+    public ResponseEntity<?> getAllPost(@RequestParam int page,
+                      @RequestParam int size){
+        JSONArray result = postService.getPostAdmin(page,size);
+        return ResponseEntity.ok(result);
     }
 }

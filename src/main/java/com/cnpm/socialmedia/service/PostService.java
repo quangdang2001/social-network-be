@@ -4,6 +4,7 @@ import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
+import net.minidev.json.JSONArray;
 import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.Pageable;
@@ -29,4 +30,5 @@ public interface PostService {
     List<Post> findPostReported();
     NotificationPayload sharePost(PostDTO postDTO);
     String upImagePost(MultipartFile file, Long postId) throws IOException;
+    JSONArray getPostAdmin(int page, int size);
 }
