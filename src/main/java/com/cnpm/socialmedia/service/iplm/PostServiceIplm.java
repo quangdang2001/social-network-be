@@ -10,6 +10,7 @@ import com.cnpm.socialmedia.model.*;
 import com.cnpm.socialmedia.repo.ImagePostRepo;
 import com.cnpm.socialmedia.repo.PostLikeRepo;
 import com.cnpm.socialmedia.repo.PostRepo;
+import com.cnpm.socialmedia.repo.UserRepo;
 import com.cnpm.socialmedia.service.Cloudinary.CloudinaryUpload;
 import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.PostService;
@@ -35,6 +36,7 @@ public class PostServiceIplm implements PostService {
 
     private final PostRepo postRepo;
     private final PostLikeRepo postLikeRepo;
+    private final UserRepo userRepo;
     private final NotificationService notificationService;
     private final UserFollowingService userFollowingService;
     private final UserService userService;
@@ -71,10 +73,10 @@ public class PostServiceIplm implements PostService {
     @Override
     public NotificationPayload likePost(Long postId, Long userId){
         Post post = findPostById(postId);
-        Users users = userService.findById(userId);
+        Users users = userRepo.getById(userId);
         NotificationPayload notificationPayload = null;
         if (post!=null && users!=null) {
-            boolean check = postLikeRepo.findByPostIdAndUserId(post, users) != null;
+            boolean check = postLikeRepo.existsByPostIdAndUserId(post, users);
 
             if (!check) {
                 PostLike postLike = new PostLike(post,users);
@@ -102,7 +104,7 @@ public class PostServiceIplm implements PostService {
     public Boolean reportPost(Long postId) {
         Post post = findPostById(postId);
         if (post!=null){
-            post.setCountReported(post.getCountReported()+1);
+            post.increaseReport();
             if (post.getCountReported()>50){
                 postRepo.deleteById(postId);
             }
@@ -145,7 +147,10 @@ public class PostServiceIplm implements PostService {
 
     @Override
     public String upImagePost(MultipartFile file, Long postId) throws IOException {
-        Post post = findPostById(postId);
+        if (!postRepo.existsById(postId)){
+            return null;
+        }
+        Post postProxy = postRepo.getById(postId);
         if (!file.isEmpty()){
             Map params = ObjectUtils.asMap(
                     "resource_type", "auto",
@@ -153,7 +158,7 @@ public class PostServiceIplm implements PostService {
             );
             Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file),params);
             ImagePost imagePost = new ImagePost();
-            imagePost.setPost(post);
+            imagePost.setPost(postProxy);
             imagePost.setUrlImage((String) map.get("secure_url"));
 
             imagePostRepo.save(imagePost);
@@ -170,9 +175,12 @@ public class PostServiceIplm implements PostService {
 
     @Override
     public void deletePostById(Long id) throws IOException {
-        Post post = findPostById(id);
-        List<ImagePost> images = post.getImages();
-        if (images!= null) {
+        Post postProxy = postRepo.getById(id);
+        System.out.println("Get Post Proxy END");
+        List<ImagePost> images = imagePostRepo.findAllByPost(postProxy);
+        System.out.println("Get Image END");
+        System.out.println(images.size());
+        if (images.size()>0) {
             images.forEach(image ->{
                 try {
                     cloudinaryUpload.cloudinary().uploader().destroy("postImages/" + cloudinaryUpload.getPublicId(image.getUrlImage()),
@@ -182,6 +190,7 @@ public class PostServiceIplm implements PostService {
                 }
             });
         }
+        System.out.println("Delete begin");
         postRepo.deleteById(id);
     }
 
@@ -194,12 +203,12 @@ public class PostServiceIplm implements PostService {
 
     @Override
     public Post saveNewPost(PostDTO postDTO) {
-        Users users = userService.findById(postDTO.getUserId());
+        Users usersProxy = userRepo.getById(postDTO.getUserId());
         Post post = null;
-        if (users.isEnable()) {
+        if (usersProxy.isEnable()) {
             post = new Post();
             post.setContent(postDTO.getContent());
-            post.setUsers(users);
+            post.setUsers(usersProxy);
             post.setPostShared(null);
             save(post);
         }
@@ -208,10 +217,12 @@ public class PostServiceIplm implements PostService {
 
     @Override
     public Post updatePost(PostDTO postDTO) {
-        Post post = findPostById(postDTO.getId());
-        post.setContent(postDTO.getContent());
-        save(post);
-        return post;
+        System.out.println("Begin");
+        Post postProxy = postRepo.getById(postDTO.getId());
+        postProxy.setContent(postDTO.getContent());
+        save(postProxy);
+        System.out.println("End");
+        return postProxy;
     }
 
     private List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Users user){

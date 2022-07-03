@@ -26,7 +26,7 @@ public class Post {
     @Column(nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<ImagePost> images;
 
     private int countLiked = 0;
@@ -48,7 +48,7 @@ public class Post {
     private List<Comment> comments;
 
     private boolean isPostShare=false;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post postShared = null;
 
 
@@ -58,17 +58,18 @@ public class Post {
     public void decreaseLike(){
         this.countLiked--;
     }
+    public void increaseReport(){this.countReported++;}
 
     @JsonIgnore
     @OneToMany(mappedBy = "postShared")
     private List<Post> postChild;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     private List<Notification> notifications;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "postId",cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "postId",cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<PostLike> postLikes;
 
     @PreRemove
