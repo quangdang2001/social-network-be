@@ -12,7 +12,7 @@ import java.util.Set;
 @Repository
 public interface UserRepo extends JpaRepository<Users, Long> {
     Users findUserByEmail(String email);
-    Users getUsersByEmail(String email);
+
     Boolean existsByEmail(String email);
     List<Users> findAllByCountReportGreaterThan(Integer num);
     List<Users> findAllByIdIn(List<Long> userIds);

@@ -18,7 +18,11 @@ import com.cnpm.socialmedia.service.UserFollowingService;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -75,8 +79,8 @@ public class PostServiceIplm implements PostService {
         Post post = findPostById(postId);
         Users users = userRepo.getById(userId);
         NotificationPayload notificationPayload = null;
-        if (post!=null && users!=null) {
-            boolean check = postLikeRepo.existsByPostIdAndUserId(post, users);
+        if (post!=null) {
+            boolean check = postLikeRepo.findByPostIdAndUserId(post, users) !=null;
 
             if (!check) {
                 PostLike postLike = new PostLike(post,users);
@@ -168,6 +172,20 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
+    public JSONArray getPostAdmin(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size,Sort.by("createTime").descending());
+        var pagePost = postRepo.findAll(pageable);
+        JSONArray jsonArray = new JSONArray();
+        pagePost.forEach(post -> {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("userCreate",post.getUsers().getId());
+            jsonObject.put("post",post);
+            jsonArray.add(jsonObject);
+        });
+        return jsonArray;
+    }
+
+    @Override
     public Post findPostById(Long id) {
         Optional<Post> post = postRepo.findById(id);
         return post.orElse(null);
@@ -238,7 +256,7 @@ public class PostServiceIplm implements PostService {
                 post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
                 post.getCreateTime(),post.getUpdateTime(),post.isPostShare());
 
-        if (post.isPostShare()) {
+        if (post.isPostShare()&& post.getPostShared()!=null) {
             PostShareDTO postShareDTO = new PostShareDTO();
             Post postShare = post.getPostShared();
             Users userCreate = postShare.getUsers();

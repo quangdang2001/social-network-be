@@ -6,21 +6,22 @@ import com.cnpm.socialmedia.dto.UserChatDTO;
 import com.cnpm.socialmedia.model.Message;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.MessageRepo;
+import com.cnpm.socialmedia.repo.UserRepo;
 import com.cnpm.socialmedia.service.MessageService;
 import com.cnpm.socialmedia.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,28 +30,31 @@ import java.util.stream.Collectors;
 public class MessageServiceIplm implements MessageService {
     private final MessageRepo messageRepo;
     private final UserService userService;
+    private final UserRepo userRepo;
 
 
     @Override
     public MessageDTO sendMessage(MessageDTO messageDTO) {
         Message message = new Message();
-        Users usersSend = userService.findById(messageDTO.getSenderId());
-        Users usersReceiver = userService.findById(messageDTO.getReceiverId());
-        if (usersSend != null && usersReceiver != null) {
-            message.setMessage(messageDTO.getMessage());
-            message.setCreateTime(new Date());
-            message.setSender(usersSend);
-            message.setReceiver(usersReceiver);
-            Long receiverId = messageDTO.getReceiverId();
-            Long senderId = messageDTO.getSenderId();
-            message.setRoom(getRoom(receiverId, senderId));
-            messageRepo.save(message);
-            messageDTO.setRoom(getRoom(receiverId, senderId));
-            messageDTO.setCreateTime(new Date());
-            return messageDTO;
+        if (!userRepo.existsById(messageDTO.getSenderId()) || !userRepo.existsById(messageDTO.getReceiverId()))
+            return null;
+        Users usersSend = userRepo.getById(messageDTO.getSenderId());
+        Users usersReceiver = userRepo.getById(messageDTO.getReceiverId());
 
-        }
-        return null;
+        message.setMessage(messageDTO.getMessage());
+        message.setCreateTime(new Date());
+        message.setSender(usersSend);
+        message.setReceiver(usersReceiver);
+        Long receiverId = messageDTO.getReceiverId();
+        Long senderId = messageDTO.getSenderId();
+        message.setRoom(getRoom(receiverId, senderId));
+        messageRepo.save(message);
+        messageDTO.setRoom(getRoom(receiverId, senderId));
+        messageDTO.setCreateTime(new Date());
+
+        return messageDTO;
+
+
     }
 
     @Override

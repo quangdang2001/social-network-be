@@ -5,6 +5,7 @@ import com.cnpm.socialmedia.dto.MessageSendDTO;
 import com.cnpm.socialmedia.dto.UserChatDTO;
 import com.cnpm.socialmedia.model.Message;
 import com.cnpm.socialmedia.model.Users;
+import net.minidev.json.JSONArray;
 
 import java.util.List;
 
