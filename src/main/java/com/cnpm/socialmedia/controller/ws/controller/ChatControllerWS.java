@@ -1,5 +1,7 @@
 package com.cnpm.socialmedia.controller.ws.controller;
 
+import com.cnpm.socialmedia.controller.ws.Payload.MessagePayload;
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.MessageDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +16,13 @@ public class ChatControllerWS {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @MessageMapping("/sendMessage")
-    public ResponseEntity<?> sendMessage(@Payload MessageDTO messageDTO){
-        simpMessagingTemplate.convertAndSendToUser(messageDTO.getReceiverId().toString(),"/chat",messageDTO);
-        return ResponseEntity.ok(messageDTO);
+    public ResponseEntity<?> sendMessage(@Payload MessagePayload messagePayload){
+        simpMessagingTemplate.convertAndSendToUser(messagePayload.getReceiverId().toString(),"/chat",messagePayload);
+        NotificationPayload notificationPayload = new NotificationPayload();
+        notificationPayload.setType("CHAT");
+        notificationPayload.setContent(messagePayload.getFullName()+" sent you a message.");
+        simpMessagingTemplate.convertAndSendToUser(messagePayload.getReceiverId().toString(),
+                "/notificationPopUp",notificationPayload);
+        return ResponseEntity.ok(messagePayload);
     }
 }

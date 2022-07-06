@@ -1,5 +1,9 @@
 package com.cnpm.socialmedia.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.cnpm.socialmedia.dto.PasswordDTO;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
@@ -10,18 +14,29 @@ import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.service.email.EmailSenderService;
 import com.cnpm.socialmedia.utils.Convert;
 import com.cnpm.socialmedia.utils.EmailTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
-import java.util.UUID;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+
+import static java.util.Arrays.stream;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/api")
@@ -50,14 +65,12 @@ public class RegisterController {
     }
 
     @RequestMapping(value = "/verifyRegistration", method = RequestMethod.GET)
-    public ResponseEntity<?> verifyRegistration(@RequestParam("email") String email, @RequestParam("token") String token) {
+    public RedirectView verifyRegistration(@RequestParam("email") String email, @RequestParam("token") String token) {
         String result = userService.validateVerificationToken(email,token);
         if(result.equalsIgnoreCase("valid")) {
-            return ResponseEntity.ok(new ResponseDTO(true,"Success",
-                    null));
+            return new RedirectView("https://www.qpnetwork.tk/confirmemailqpnetwork");
         }
-        return ResponseEntity.ok(new ResponseDTO(false,"Bad user",
-                null));
+        return new RedirectView("https://www.qpnetwork.tk/confirmemailfailed");
     }
 
     @GetMapping("/resendVerifyToken")
@@ -118,6 +131,51 @@ public class RegisterController {
         userService.changePassword(user, passwordDTO.getNewPassword());
         return ResponseEntity.ok().body(new ResponseDTO(true,"Password Changed Successfully",
                 null));
+    }
+    @GetMapping("/refreshToken")
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader!=null && authorizationHeader.startsWith("Bearer ")){
+
+            try {
+                String refresh_token = authorizationHeader.substring("Bearer ".length());
+                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+                JWTVerifier verifier = JWT.require(algorithm).build();
+                DecodedJWT decodedJWT = verifier.verify(refresh_token);
+                String username = decodedJWT.getSubject();
+                Users users = userService.findById(Long.parseLong(username));
+                String access_token = JWT.create()
+                        .withSubject(username)
+                        .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000*6*24*15))
+                        .withIssuer(request.getRequestURL().toString())
+                        .withClaim("role",users.getRole())
+                        .sign(algorithm);
+
+                refresh_token = JWT.create()
+                        .withSubject(username)
+                        .withExpiresAt(new Date(System.currentTimeMillis()*2))
+                        .withIssuer(request.getRequestURL().toString())
+                        .sign(algorithm);
+
+                Map<String,String> token = new HashMap<>();
+                token.put("access_token",access_token);
+                token.put("refresh_token",refresh_token);
+                token.put("userId",username);
+                token.put("role", users.getRole());
+                response.setContentType(APPLICATION_JSON_VALUE);
+                new ObjectMapper().writeValue(response.getOutputStream(), token);
+            }catch (Exception e){
+                System.out.println("Error loggin in: "+e.getMessage());
+                response.setHeader("error",e.getMessage());
+                response.setStatus(FORBIDDEN.value());
+                Map<String,String> error = new HashMap<>();
+                error.put("error_message",e.getMessage());
+                response.setContentType(APPLICATION_JSON_VALUE);
+                new ObjectMapper().writeValue(response.getOutputStream(), error);
+            }
+        }else {
+            throw new RuntimeException("Refresh token is missing");
+        }
     }
 
 

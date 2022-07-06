@@ -81,7 +81,6 @@ public class PostController {
             return ResponseEntity.ok(new ResponseDTO(true,"Delete successfully",null));
         }
         catch (Exception e){
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO(false,"Delete failed"));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).
                     body(new ResponseDTO(false,e.getMessage(),null));
 
@@ -89,10 +88,11 @@ public class PostController {
     }
     @GetMapping("/post/user")
     public ResponseEntity<?> getAllPostUser(@RequestParam Long userId,
+                                            @RequestParam(defaultValue = "-1") Long guestId,
                                             @RequestParam(value = "page",defaultValue = "0") Integer page,
                                             @RequestParam(value = "size",defaultValue = "10") Integer size){
         List<PostDTO> posts;
-        posts = postService.findPostOfUser(userId,page,size);
+        posts = postService.findPostOfUser(userId,guestId,page,size);
 
         return ResponseEntity.ok(new ResponseDTO(true,"Success",posts));
     }

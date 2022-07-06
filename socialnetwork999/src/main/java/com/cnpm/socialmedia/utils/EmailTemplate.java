@@ -244,8 +244,8 @@ public class EmailTemplate {
                         "                \"\n" +
                         "              >\n" +
                         "                <p style=\"margin: 0\">\n" +
-                        "                 Hi, <br> We're happy you signed up for Social Network. To start\n" +
-                        "                  exploring the Social Network App and neighborhood,\n" +
+                        "                 Hi, <br> We're happy you signed up for qp Network. To start\n" +
+                        "                  exploring the qp Network App and neighborhood,\n" +
                         "                  please confirm your email address.\n" +
                         "                </p>\n" +
                         "              </td>\n" +
@@ -303,8 +303,8 @@ public class EmailTemplate {
                         "                \"\n" +
                         "              >\n" +
                         "                <p style=\"margin: 0\">\n" +
-                        "                  Welcome to Social Network! <br>\n" +
-                        "                  The Social Network Team\n" +
+                        "                  Welcome to qp Network! <br>\n" +
+                        "                  The qp Network Team\n" +
                         "                </p>\n" +
                         "              </td>\n" +
                         "            </tr>\n" +
@@ -556,7 +556,7 @@ public class EmailTemplate {
                 "        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"max-width: 600px;\">\n" +
                 "          <tr>\n" +
                 "            <td align=\"left\" bgcolor=\"#ffffff\" style=\"padding: 36px 24px 0; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; border-top: 3px solid #d4dadf;\">\n" +
-                "              <h1 style=\"margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 48px;\">\tVerify your Social Network account\n" +
+                "              <h1 style=\"margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 48px;\">\tVerify your qp Network account\n" +
                 "\n" +
                 "            </h1>\n" +
                 "            </td>\n" +
@@ -594,9 +594,9 @@ public class EmailTemplate {
                 "          <!-- start button -->\n" +
                 "          <tr>\n" +
                 "            <td align=\"left\" bgcolor=\"#ffffff\" style=\"padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;\">\n" +
-                "              <p style=\"margin: 0;\">Do not share this OTP with anyone. Social Network takes your account security very seriously. \n" +
-                "                Social Network Customer Service will never ask you to disclose or verify your Social Network password, OTP, credit card, or banking account number. \n" +
-                "                If you receive a suspicious email with a link to update your account information, do not click on the link—instead, report the email to Social Network for investigation. \n" +
+                "              <p style=\"margin: 0;\">Do not share this OTP with anyone. qp Network takes your account security very seriously. \n" +
+                "                qp Network Customer Service will never ask you to disclose or verify your qp Network password, OTP, credit card, or banking account number. \n" +
+                "                If you receive a suspicious email with a link to update your account information, do not click on the link—instead, report the email to qp Network for investigation. \n" +
                 "                Thank you!\n" +
                 "                \n" +
                 "                </p>\n" +
@@ -607,7 +607,7 @@ public class EmailTemplate {
                 "\n" +
                 "          <tr>\n" +
                 "            <td align=\"left\" bgcolor=\"#ffffff\" style=\"padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-bottom: 3px solid #d4dadf\">\n" +
-                "              <p style=\"margin: 0;\">Cheers,<br> Social Network Team</p>\n" +
+                "              <p style=\"margin: 0;\">Cheers,<br> qp Network Team</p>\n" +
                 "            </td>\n" +
                 "          </tr>\n" +
                 "          <!-- end copy -->\n" +
@@ -643,7 +643,7 @@ public class EmailTemplate {
                 "          <!-- start unsubscribe -->\n" +
                 "          <tr>\n" +
                 "            <td align=\"center\" bgcolor=\"#e9ecef\" style=\"padding: 12px 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; color: #666;\">\n" +
-                "              <p style=\"margin: 0;\">To stop receiving these emails, you can <a href=\"https://sendgrid.com\" target=\"_blank\">unsubscribe</a> at any time.</p>\n" +
+                "              <p style=\"margin: 0;\">To stop receiving these emails, you can <a target=\"_blank\">unsubscribe</a> at any time.</p>\n" +
                 "              <p style=\"margin: 0;\">Paste 1234 S. Broadway St. City, State 12345</p>\n" +
                 "            </td>\n" +
                 "          </tr>\n" +

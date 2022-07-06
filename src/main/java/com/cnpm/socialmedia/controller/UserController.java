@@ -162,4 +162,6 @@ public class UserController {
         return ResponseEntity.ok(new ResponseDTO(true,"Success",userFollowingService.top10Follower()));
     }
 
+
+
 }

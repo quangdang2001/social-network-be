@@ -44,6 +44,7 @@ public class NotificationControllerWS {
 
     @MessageMapping("/sendNotification")
     public ResponseEntity<?> sendNotificationCmt(@Payload NotificationPayload notificationPayload){
+        notificationPayload.setType("NOTIFICATION");
         simpMessagingTemplate.convertAndSendToUser(notificationPayload.getUserReceiverId().toString(),
                 "/notificationPopUp",notificationPayload);
 

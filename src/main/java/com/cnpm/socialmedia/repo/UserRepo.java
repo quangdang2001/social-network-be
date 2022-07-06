@@ -20,10 +20,10 @@ public interface UserRepo extends JpaRepository<Users, Long> {
     @Query("select u from Users u where u.email like concat('%',:email,'%')")
     List<Users> searchByEmail(String email);
 
-    @Query("SELECT u from Users u where concat('%',u.lastName,' ',u.firstName,'%') like concat('%',:keyword,'%')")
+    @Query("SELECT u from Users u where concat('%',lower(u.lastName),' ',lower(u.firstName) ,'%') like concat('%',:keyword,'%')")
     List<Users> searchUserLastFirstName(String keyword);
 
-    @Query("SELECT u from Users u where concat('%',u.firstName,' ',u.lastName,'%') like concat('%',:keyword,'%')")
+    @Query("SELECT u from Users u where concat('%',lower(u.firstName) ,' ',lower(u.lastName) ,'%') like concat('%',:keyword,'%')")
     List<Users> searchUserFirstLastName(String keyword);
 
     @Query("select u from Users u order by u.countFollower desc")

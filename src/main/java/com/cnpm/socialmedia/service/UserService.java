@@ -26,6 +26,6 @@ public interface UserService {
     Page<Users> getUserAdmin(int page, int size);
     boolean deleteUser(Long userId);
     List<Users> findAllUsersByListUserId(List<Long> id);
-
+    boolean enableUser(String email);
 
 }

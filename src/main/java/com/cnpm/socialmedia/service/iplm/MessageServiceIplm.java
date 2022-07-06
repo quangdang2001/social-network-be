@@ -99,7 +99,6 @@ public class MessageServiceIplm implements MessageService {
         }
 
         conversations = conversations.stream().distinct().collect(Collectors.toList());
-        conversations.forEach(conversation -> System.out.println(conversation.getEmail()));
         List<UserChatDTO> userChatDTOS = new ArrayList<>();
         conversations.forEach(user -> {
             userChatDTOS.add(new UserChatDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getImageUrl()

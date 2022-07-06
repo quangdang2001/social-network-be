@@ -96,4 +96,14 @@ public class AdminController {
         JSONArray result = postService.getPostAdmin(page,size);
         return ResponseEntity.ok(result);
     }
+
+    @PutMapping("user/enable")
+    private ResponseEntity<?> enable(@RequestParam String email){
+        boolean check = userService.enableUser(email);
+        if (check)
+            return ResponseEntity.ok(new ResponseDTO(true,"Success",null));
+        else
+            return ResponseEntity.ok(new ResponseDTO(false,"Failed",null));
+
+    }
 }

@@ -24,7 +24,7 @@ public interface PostService {
     Post saveNewPost(PostDTO postDTO);
     Post updatePost(PostDTO postDTO);
     List<PostDTO> findPostHomePage(Long userId, Integer page, Integer size);
-    List<PostDTO> findPostOfUser(Long userId, Integer page, Integer size);
+    List<PostDTO> findPostOfUser(Long userId,Long guestId, Integer page, Integer size);
     NotificationPayload likePost(Long postId, Long userId);
     Boolean reportPost(Long postId);
     List<Post> findPostReported();

@@ -37,6 +37,5 @@ public class RegisterCompleteEventListener implements ApplicationListener<Regist
                         token;
         // SendVerificationEmail
         emailSenderService.sendEmail(user.getEmail(), EmailTemplate.emailRegister(url),"Verify Registration Email");
-        System.out.println(url);
     }
 }

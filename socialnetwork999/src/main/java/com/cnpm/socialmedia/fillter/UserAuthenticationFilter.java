@@ -34,14 +34,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
 
-
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String email = request.getParameter("email");
-        System.out.println(email);
         String password = request.getParameter("password");
-        System.out.println(password);
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(email,password);
         return authenticationManager.authenticate(usernamePasswordAuthenticationToken);
     }
@@ -59,8 +55,15 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
                 .withClaim("role",role)
                 .sign(algorithm);
 
+        String refresh_token = JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis()*3))
+                .withIssuer(request.getRequestURL().toString())
+                .sign(algorithm);
+
         Map<String,String> token = new HashMap<>();
         token.put("access_token",access_token);
+        token.put("refresh_token",refresh_token);
         token.put("userId",user.getUsername());
         token.put("role", role.get(0));
         response.setContentType(APPLICATION_JSON_VALUE);

@@ -171,7 +171,6 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     public Set<Users> searchUser(String keyword) {
         keyword = keyword.trim();
         keyword = keyword.replaceAll("  ", " ");
-        System.out.println(keyword);
         Set<Users> users= new HashSet<>();
         if (keyword.contains("gmail")){
             keyword = keyword.substring(0,keyword.indexOf("@"));
@@ -226,6 +225,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
             users.setRole(null);
             users.setEnable(false);
             userRepo.save(users);
+//            userRepo.deleteById(userId);
             return true;
         }catch (Exception e){
             log.error("User delete exception: ",e.getMessage());
@@ -238,6 +238,18 @@ public class UserServiceIplm implements UserService, UserDetailsService {
         return userRepo.findAllByIdIn(id);
     }
 
+    @Override
+    public boolean enableUser(String email) {
+        try {
+            Users users = findUserByEmail(email);
+            users.setRole(Constant.ROLE_USER);
+            users.setEnable(true);
+            userRepo.save(users);
+            return true;
+        } catch (Exception e){
+            return false;
+        }
+    }
 
 
     @Override

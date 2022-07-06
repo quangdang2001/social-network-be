@@ -37,7 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/resetPassword",
             "/api/verifyRegistration*",
             "/api/savePassword",
-
+            "/api/refreshToken",
             // -- Swagger UI v2
             "/v2/api-docs",
             "/swagger-resources",
@@ -88,4 +88,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
 }

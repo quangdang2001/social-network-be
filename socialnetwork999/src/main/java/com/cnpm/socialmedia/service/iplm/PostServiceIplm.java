@@ -57,33 +57,40 @@ public class PostServiceIplm implements PostService {
         List<Users> usersFollowingId = userFollowingService.findAllIdFollowingUser(userId);
         Users users = userService.findById(userId);
         usersFollowingId.add(users);
-        Pageable pageable = PageRequest.of(page,size);
-        List<Post> posts =postRepo.findAllByUsersInOrderByCreateTimeDesc(usersFollowingId,pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        List<Post> posts = postRepo.findAllByUsersInOrderByCreateTimeDesc(usersFollowingId, pageable);
 
-        return  convertPostsToPostDTOs(posts,users);
+        return convertPostsToPostDTOs(posts, users);
     }
 
     @Override
-    public List<PostDTO> findPostOfUser(Long userId, Integer page, Integer size) {
+    public List<PostDTO> findPostOfUser(Long userId, Long guestId, Integer page, Integer size) {
         List<Post> posts;
-        Pageable pageable = PageRequest.of(page,size);
-        Users users = userService.findById(userId);
-        posts = postRepo.findAllByUsersOrderByCreateTimeDesc(users,pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Users users;
+        if (guestId.equals(-1L)) {
+            users = userService.findById(userId);
+            posts = postRepo.findAllByUsersOrderByCreateTimeDesc(users, pageable);
+            return convertPostsToPostDTOs(posts, users);
+        } else {
+            users = userService.findById(userId);
+            Users guest = userService.findById(guestId);
+            posts = postRepo.findAllByUsersOrderByCreateTimeDesc(users, pageable);
+            return convertPostsToPostDTOs(posts, guest);
+        }
 
-
-        return convertPostsToPostDTOs(posts,users);
     }
 
     @Override
-    public NotificationPayload likePost(Long postId, Long userId){
+    public NotificationPayload likePost(Long postId, Long userId) {
         Post post = findPostById(postId);
         Users users = userRepo.getById(userId);
         NotificationPayload notificationPayload = null;
-        if (post!=null) {
-            boolean check = postLikeRepo.findByPostIdAndUserId(post, users) !=null;
+        if (post != null) {
+            boolean check = postLikeRepo.findByPostIdAndUserId(post, users) != null;
 
             if (!check) {
-                PostLike postLike = new PostLike(post,users);
+                PostLike postLike = new PostLike(post, users);
                 post.increaseLike();
                 postLikeRepo.save(postLike);
                 save(post);
@@ -91,11 +98,11 @@ public class PostServiceIplm implements PostService {
                 if (!post.getUsers().getId().equals(userId)) {
                     String content = String.format("%s %s liked your post.", users.getLastName(), users.getFirstName());
                     notificationPayload =
-                            Convert.convertNotificationToNotifiPayload(notificationService.sendNotificationPost(post,users,content));
+                            Convert.convertNotificationToNotifiPayload(notificationService.sendNotificationPost(post, users, content));
                 }
 
             } else {
-                PostLike postLike = new PostLike(post,users);
+                PostLike postLike = new PostLike(post, users);
                 post.decreaseLike();
                 postLikeRepo.delete(postLike);
             }
@@ -107,9 +114,9 @@ public class PostServiceIplm implements PostService {
     @Override
     public Boolean reportPost(Long postId) {
         Post post = findPostById(postId);
-        if (post!=null){
+        if (post != null) {
             post.increaseReport();
-            if (post.getCountReported()>50){
+            if (post.getCountReported() > 50) {
                 postRepo.deleteById(postId);
             }
             return true;
@@ -124,7 +131,7 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
-    public NotificationPayload sharePost(PostDTO postDTO){
+    public NotificationPayload sharePost(PostDTO postDTO) {
         Post post = new Post();
         Users userCreate = userService.findById(postDTO.getUserId());
         if (userCreate.isEnable()) {
@@ -151,16 +158,16 @@ public class PostServiceIplm implements PostService {
 
     @Override
     public String upImagePost(MultipartFile file, Long postId) throws IOException {
-        if (!postRepo.existsById(postId)){
+        if (!postRepo.existsById(postId)) {
             return null;
         }
         Post postProxy = postRepo.getById(postId);
-        if (!file.isEmpty()){
+        if (!file.isEmpty()) {
             Map params = ObjectUtils.asMap(
                     "resource_type", "auto",
                     "folder", "postImages"
             );
-            Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file),params);
+            Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file), params);
             ImagePost imagePost = new ImagePost();
             imagePost.setPost(postProxy);
             imagePost.setUrlImage((String) map.get("secure_url"));
@@ -173,13 +180,13 @@ public class PostServiceIplm implements PostService {
 
     @Override
     public JSONArray getPostAdmin(int page, int size) {
-        Pageable pageable = PageRequest.of(page,size,Sort.by("createTime").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createTime").descending());
         var pagePost = postRepo.findAll(pageable);
         JSONArray jsonArray = new JSONArray();
         pagePost.forEach(post -> {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("userCreate",post.getUsers().getId());
-            jsonObject.put("post",post);
+            jsonObject.put("userCreate", post.getUsers().getId());
+            jsonObject.put("post", post);
             jsonArray.add(jsonObject);
         });
         return jsonArray;
@@ -198,8 +205,8 @@ public class PostServiceIplm implements PostService {
         List<ImagePost> images = imagePostRepo.findAllByPost(postProxy);
         System.out.println("Get Image END");
         System.out.println(images.size());
-        if (images.size()>0) {
-            images.forEach(image ->{
+        if (images.size() > 0) {
+            images.forEach(image -> {
                 try {
                     cloudinaryUpload.cloudinary().uploader().destroy("postImages/" + cloudinaryUpload.getPublicId(image.getUrlImage()),
                             ObjectUtils.asMap("resource_type", "image"));
@@ -213,10 +220,10 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
-    public PostDTO findPostDTOById(Long id,Long userId) {
+    public PostDTO findPostDTOById(Long id, Long userId) {
         Post post = findPostById(id);
         Users users = userService.findById(userId);
-        return convertPostToPostDTO(post,users);
+        return convertPostToPostDTO(post, users);
     }
 
     @Override
@@ -243,20 +250,20 @@ public class PostServiceIplm implements PostService {
         return postProxy;
     }
 
-    private List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Users user){
+    private List<PostDTO> convertPostsToPostDTOs(List<Post> posts, Users user) {
         List<PostDTO> postDTOS = new ArrayList<>();
         posts.forEach(post -> {
-            postDTOS.add(convertPostToPostDTO(post,user));
+            postDTOS.add(convertPostToPostDTO(post, user));
         });
         return postDTOS;
     }
 
-    private PostDTO convertPostToPostDTO(Post post,Users user){
-        PostDTO postDTO = new PostDTO(post.getId(),post.getContent(),post.getUsers().getId(),
-                post.getCountLiked(),post.getCountCmted(),post.getCountShated(),post.getCountReported(),
-                post.getCreateTime(),post.getUpdateTime(),post.isPostShare());
+    private PostDTO convertPostToPostDTO(Post post, Users user) {
+        PostDTO postDTO = new PostDTO(post.getId(), post.getContent(), post.getUsers().getId(),
+                post.getCountLiked(), post.getCountCmted(), post.getCountShated(), post.getCountReported(),
+                post.getCreateTime(), post.getUpdateTime(), post.isPostShare());
 
-        if (post.isPostShare()&& post.getPostShared()!=null) {
+        if (post.isPostShare() && post.getPostShared() != null) {
             PostShareDTO postShareDTO = new PostShareDTO();
             Post postShare = post.getPostShared();
             Users userCreate = postShare.getUsers();
@@ -274,7 +281,7 @@ public class PostServiceIplm implements PostService {
         userDTO.setLastName(post.getUsers().getLastName());
         userDTO.setEmail(post.getUsers().getEmail());
         userDTO.setImageUrl(post.getUsers().getImageUrl());
-        if (user!=null) {
+        if (user != null) {
             boolean check = postLikeRepo.findByPostIdAndUserId(post, user) != null;
             postDTO.setLiked(check);
         }
