@@ -53,8 +53,6 @@ public class MessageServiceIplm implements MessageService {
         messageDTO.setCreateTime(new Date());
 
         return messageDTO;
-
-
     }
 
     @Override

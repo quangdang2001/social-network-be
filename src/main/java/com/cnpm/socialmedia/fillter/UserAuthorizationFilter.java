@@ -50,6 +50,8 @@ public class UserAuthorizationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(username,null,authorities);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+//                    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
                     filterChain.doFilter(request,response);
                 }catch (Exception e){
                     System.out.println("Error loggin in: "+e.getMessage());

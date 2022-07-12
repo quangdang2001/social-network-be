@@ -84,25 +84,23 @@ public class PostServiceIplm implements PostService {
     @Override
     public NotificationPayload likePost(Long postId, Long userId) {
         Post post = findPostById(postId);
-        Users users = userRepo.getById(userId);
+        Users usersProxy = userRepo.getById(userId);
         NotificationPayload notificationPayload = null;
         if (post != null) {
-            boolean check = postLikeRepo.findByPostIdAndUserId(post, users) != null;
-
+            boolean check = postLikeRepo.findByPostIdAndUserId(post, usersProxy) != null;
             if (!check) {
-                PostLike postLike = new PostLike(post, users);
+                PostLike postLike = new PostLike(post, usersProxy);
                 post.increaseLike();
                 postLikeRepo.save(postLike);
                 save(post);
-
                 if (!post.getUsers().getId().equals(userId)) {
-                    String content = String.format("%s %s liked your post.", users.getLastName(), users.getFirstName());
+                    String content = String.format("%s %s liked your post.", usersProxy.getLastName(), usersProxy.getFirstName());
                     notificationPayload =
-                            Convert.convertNotificationToNotifiPayload(notificationService.sendNotificationPost(post, users, content));
+                            Convert.convertNotificationToNotifiPayload(
+                                    notificationService.sendNotificationPost(post, usersProxy, content));
                 }
-
             } else {
-                PostLike postLike = new PostLike(post, users);
+                PostLike postLike = new PostLike(post, usersProxy);
                 post.decreaseLike();
                 postLikeRepo.delete(postLike);
             }
@@ -256,7 +254,6 @@ public class PostServiceIplm implements PostService {
         PostDTO postDTO = new PostDTO(post.getId(), post.getContent(), post.getUsers().getId(),
                 post.getCountLiked(), post.getCountCmted(), post.getCountShated(), post.getCountReported(),
                 post.getCreateTime(), post.getUpdateTime(), post.isPostShare());
-
         if (post.isPostShare() && post.getPostShared() != null) {
             PostShareDTO postShareDTO = new PostShareDTO();
             Post postShare = post.getPostShared();

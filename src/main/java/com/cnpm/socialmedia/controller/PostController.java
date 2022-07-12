@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -52,6 +54,7 @@ public class PostController {
     }
     @PostMapping(path = "/post")
     public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO)  {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Post post = postService.saveNewPost(postDTO);
 

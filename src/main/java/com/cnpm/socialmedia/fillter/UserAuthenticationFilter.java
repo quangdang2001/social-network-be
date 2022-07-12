@@ -50,7 +50,7 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 
         String access_token = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000*6*24*15*2))
+                .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000*6*24*15))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("role",role)
                 .sign(algorithm);
