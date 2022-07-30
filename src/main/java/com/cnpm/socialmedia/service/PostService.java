@@ -2,6 +2,7 @@ package com.cnpm.socialmedia.service;
 
 import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
+import com.cnpm.socialmedia.dto.PostReq;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Post;
 import net.minidev.json.JSONArray;
@@ -20,12 +21,12 @@ public interface PostService {
     void deletePostById(Long id) throws IOException;
 
     /////
-    PostDTO findPostDTOById(Long id,Long userId);
-    Post saveNewPost(PostDTO postDTO);
+    PostDTO findPostDTOById(Long id);
+    Post saveNewPost(PostReq postReq, Long userId);
     Post updatePost(PostDTO postDTO);
     List<PostDTO> findPostHomePage(Long userId, Integer page, Integer size);
-    List<PostDTO> findPostOfUser(Long userId,Long guestId, Integer page, Integer size);
-    NotificationPayload likePost(Long postId, Long userId);
+    List<PostDTO> findPostOfUser(Long userId,Long guestId ,Integer page, Integer size);
+    NotificationPayload likePost(Long userId, Long postId);
     Boolean reportPost(Long postId);
     List<Post> findPostReported();
     NotificationPayload sharePost(PostDTO postDTO);

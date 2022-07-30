@@ -4,32 +4,37 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.cnpm.socialmedia.dto.LoginRequest;
 import com.cnpm.socialmedia.dto.PasswordDTO;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.event.RegisterCompleteEvent;
+import com.cnpm.socialmedia.exception.AppException;
 import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.service.auth.UserDetailIplm;
 import com.cnpm.socialmedia.service.email.EmailSenderService;
-import com.cnpm.socialmedia.utils.Convert;
 import com.cnpm.socialmedia.utils.EmailTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.mail.MessagingException;
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.*;
 
@@ -43,10 +48,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirement(name = "AUTHORIZATION")
 public class RegisterController {
     private final UserService userService;
     private final ApplicationEventPublisher publisher;
     private final EmailSenderService emailSenderService;
+    private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO, HttpServletRequest request){
@@ -103,8 +110,6 @@ public class RegisterController {
     }
     @PostMapping("/savePassword")
     public ResponseEntity<?> savePassword(@RequestBody PasswordDTO passwordDTO) {
-
-
         Users result = userService.validatePasswordResetToken(passwordDTO.getToken());
         if(result == null) {
 
@@ -178,6 +183,37 @@ public class RegisterController {
         }
     }
 
+    @PostMapping("/login")
+    private ResponseEntity<?> login(@RequestBody LoginRequest loginRequest,
+                                    HttpServletRequest request){
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserDetailIplm user = (UserDetailIplm) authentication.getPrincipal();
+
+            Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+
+            String access_token = JWT.create()
+                    .withSubject(user.getUsers().getId().toString())
+                    .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000*6*24*15))
+                    .withIssuer(request.getRequestURL().toString())
+                    .withClaim("role",user.getUsers().getRole())
+                    .sign(algorithm);
+
+            Map<String,String> token = new HashMap<>();
+            token.put("access_token",access_token);
+            token.put("userId",user.getUsers().getId().toString());
+            token.put("role", user.getUsers().getRole());
+            return ResponseEntity.ok(token);
+        }catch (Exception e){
+            throw new AppException(403,"Access Denied");
+        }
+    }
 
     private void resendVerificationTokenMail(String email, String applicationUrl, VerificationToken verificationToken) throws MessagingException {
         String url =

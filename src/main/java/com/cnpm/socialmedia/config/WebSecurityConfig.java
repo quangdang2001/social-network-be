@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.config;
 
-import com.cnpm.socialmedia.fillter.UserAuthenticationFilter;
+
+
 import com.cnpm.socialmedia.fillter.UserAuthorizationFilter;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.service.iplm.UserServiceIplm;
@@ -8,6 +9,7 @@ import com.cnpm.socialmedia.utils.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +26,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import javax.servlet.Filter;
 import java.util.Arrays;
 
 @Configuration
@@ -33,9 +36,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
 
-
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private static final String[] WHITE_LIST_URLS = {
+            "/api/login/**",
+            "/api/registerTest",
             "/api/register",
             "/api/resetPassword",
             "/api/verifyRegistration*",
@@ -57,12 +60,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        UserAuthenticationFilter userAuthenticationFilter= new UserAuthenticationFilter(authenticationManagerBean());
-        userAuthenticationFilter.setFilterProcessesUrl("/api/login");
+
         http.csrf().disable();
         http.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues());
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -75,17 +77,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers("/api/**").hasAnyAuthority(Constant.ROLE_USER,Constant.ROLE_ADMIN)
                         .antMatchers("/admin/**").hasAnyAuthority(Constant.ROLE_ADMIN);
 
-        http.addFilter(userAuthenticationFilter);
+
         http.addFilterBefore(new UserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-//        http
-//                .authorizeHttpRequests()
-//                .antMatchers(new String[]{"/", "/not-restricted"}).permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .oauth2Login();
     }
-
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(11);
+    }
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {

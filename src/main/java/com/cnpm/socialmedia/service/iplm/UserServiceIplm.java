@@ -1,6 +1,7 @@
 package com.cnpm.socialmedia.service.iplm;
 
 import com.cnpm.socialmedia.dto.UserDTO;
+import com.cnpm.socialmedia.exception.AppException;
 import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.UserRepo;
@@ -10,6 +11,7 @@ import com.cnpm.socialmedia.utils.Constant;
 import com.cnpm.socialmedia.utils.Convert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,7 +33,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class UserServiceIplm implements UserDetailsService,UserService {
+public class UserServiceIplm implements UserService {
 
     private final UserRepo userRepo;
     private final VerificationTokenRepo verificationTokenRepo;
@@ -49,7 +51,7 @@ public class UserServiceIplm implements UserDetailsService,UserService {
         Users user;
         Boolean check = userRepo.existsByEmail(userDTO.getEmail());
         if (check){
-            return null;
+            throw new AppException(400, "User existed!!!");
         }
         user = new Users();
         user.setFirstName(Convert.formatName(userDTO.getFirstName()));
@@ -247,19 +249,10 @@ public class UserServiceIplm implements UserDetailsService,UserService {
             userRepo.save(users);
             return true;
         } catch (Exception e){
-            return false;
+            throw new AppException(400,"Failed");
         }
     }
 
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = findUserByEmail(username);
-        if (user != null) {
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority(user.getRole()));
-            return new User(user.getId().toString(), user.getPassword(), authorities);
-         }
-        return null;
-    }
+
 }

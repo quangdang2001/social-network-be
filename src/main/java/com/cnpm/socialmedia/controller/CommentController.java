@@ -9,6 +9,7 @@ import com.cnpm.socialmedia.service.CommentService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Convert;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirement(name = "AUTHORIZATION")
 public class CommentController {
 
     private final CommentService commentService;

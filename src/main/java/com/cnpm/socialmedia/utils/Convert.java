@@ -8,11 +8,16 @@ import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.model.Users;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 
 public class Convert {
     private static String pathImg = "Images";

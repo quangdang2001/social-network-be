@@ -8,6 +8,7 @@ import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Constant;
 import com.cnpm.socialmedia.utils.Convert;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -24,6 +25,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirement(name = "AUTHORIZATION")
 public class AdminController {
 
     private final UserService userService;
@@ -99,11 +101,9 @@ public class AdminController {
 
     @PutMapping("user/enable")
     private ResponseEntity<?> enable(@RequestParam String email){
-        boolean check = userService.enableUser(email);
-        if (check)
-            return ResponseEntity.ok(new ResponseDTO(true,"Success",null));
-        else
-            return ResponseEntity.ok(new ResponseDTO(false,"Failed",null));
+        userService.enableUser(email);
+        return ResponseEntity.ok(new ResponseDTO(true,"Success",null));
+
 
     }
 }

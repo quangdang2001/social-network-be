@@ -6,6 +6,7 @@ import com.cnpm.socialmedia.model.Post;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "AUTHORIZATION")
 public class ReportController {
 
     private final PostService postService;

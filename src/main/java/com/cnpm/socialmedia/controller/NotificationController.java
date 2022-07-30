@@ -3,6 +3,7 @@ package com.cnpm.socialmedia.controller;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.model.Notification;
 import com.cnpm.socialmedia.service.NotificationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirement(name = "AUTHORIZATION")
 public class NotificationController {
 
     private final NotificationService notificationService;
