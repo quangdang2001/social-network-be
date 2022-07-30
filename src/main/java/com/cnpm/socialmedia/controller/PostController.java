@@ -6,6 +6,7 @@ import com.cloudinary.utils.ObjectUtils;
 
 import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
 import com.cnpm.socialmedia.dto.PostDTO;
+import com.cnpm.socialmedia.dto.PostReq;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 
 import com.cnpm.socialmedia.model.Post;
@@ -45,18 +46,16 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/post")
-    public ResponseEntity<?> getPostById(@RequestParam Long postId,
-                                         @RequestParam Long userId) throws ParseException {
-        PostDTO postDTO = postService.findPostDTOById(postId,userId);
+    public ResponseEntity<?> getPostById(@RequestParam Long postId) throws ParseException {
+        PostDTO postDTO = postService.findPostDTOById(postId);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                 postDTO));
     }
     @PostMapping(path = "/post")
-    public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO)  {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public ResponseEntity<?> savePost(@RequestBody PostReq postReq)  {
 
-        Post post = postService.saveNewPost(postDTO);
+        Post post = postService.saveNewPost(postReq);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true,"Success",
                 post));
@@ -90,28 +89,25 @@ public class PostController {
         }
     }
     @GetMapping("/post/user")
-    public ResponseEntity<?> getAllPostUser(@RequestParam Long userId,
-                                            @RequestParam(defaultValue = "-1") Long guestId,
+    public ResponseEntity<?> getAllPostUser(@RequestParam(defaultValue = "-1") Long userId,
                                             @RequestParam(value = "page",defaultValue = "0") Integer page,
                                             @RequestParam(value = "size",defaultValue = "10") Integer size){
         List<PostDTO> posts;
-        posts = postService.findPostOfUser(userId,guestId,page,size);
+        posts = postService.findPostOfUser(userId,page,size);
 
         return ResponseEntity.ok(new ResponseDTO(true,"Success",posts));
     }
     @GetMapping("/post/homepage")
-    public ResponseEntity<?> getPostHomepage(@RequestParam Long userId,
-                                             @RequestParam(value = "page",defaultValue = "0") Integer page,
+    public ResponseEntity<?> getPostHomepage(@RequestParam(value = "page",defaultValue = "0") Integer page,
                                              @RequestParam(value = "size",defaultValue = "10") Integer size){
         List<PostDTO> posts;
-        posts = postService.findPostHomePage(userId, page, size);
+        posts = postService.findPostHomePage(page, size);
         return ResponseEntity.ok(new ResponseDTO(true,"Success",posts));
     }
 
     @PostMapping("/post/like")
-    public ResponseEntity<?> likePost(@RequestParam Long postId,
-                                      @RequestParam Long userId) throws InterruptedException {
-        NotificationPayload notificationPayload = postService.likePost(postId,userId);
+    public ResponseEntity<?> likePost(@RequestParam Long postId) throws InterruptedException {
+        NotificationPayload notificationPayload = postService.likePost(postId);
         if (notificationPayload!= null) {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO(true, "Success", notificationPayload));
         }

@@ -33,8 +33,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
 
-
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private static final String[] WHITE_LIST_URLS = {
             "/api/register",
             "/api/resetPassword",
@@ -57,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -85,7 +83,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .and()
 //                .oauth2Login();
     }
-
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(11);
+    }
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {

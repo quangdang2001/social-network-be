@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.service.auth.UserDetailIplm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,19 +45,19 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        User user = (User) authResult.getPrincipal();
+        UserDetailIplm user = (UserDetailIplm) authResult.getPrincipal();
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
         List<String> role = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 
         String access_token = JWT.create()
-                .withSubject(user.getUsername())
+                .withSubject(user.getUsers().getId().toString())
                 .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000*6*24*15))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("role",role)
                 .sign(algorithm);
 
         String refresh_token = JWT.create()
-                .withSubject(user.getUsername())
+                .withSubject(user.getUsers().getId().toString())
                 .withExpiresAt(new Date(System.currentTimeMillis()*2))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
@@ -64,7 +65,7 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
         Map<String,String> token = new HashMap<>();
         token.put("access_token",access_token);
         token.put("refresh_token",refresh_token);
-        token.put("userId",user.getUsername());
+        token.put("userId",user.getUsers().getId().toString());
         token.put("role", role.get(0));
         response.setContentType(APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(), token);

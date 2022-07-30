@@ -31,7 +31,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class UserServiceIplm implements UserDetailsService,UserService {
+public class UserServiceIplm implements UserService {
 
     private final UserRepo userRepo;
     private final VerificationTokenRepo verificationTokenRepo;
@@ -252,14 +252,5 @@ public class UserServiceIplm implements UserDetailsService,UserService {
     }
 
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = findUserByEmail(username);
-        if (user != null) {
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority(user.getRole()));
-            return new User(user.getId().toString(), user.getPassword(), authorities);
-         }
-        return null;
-    }
+
 }

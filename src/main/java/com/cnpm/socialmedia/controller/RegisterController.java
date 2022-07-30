@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.cnpm.socialmedia.dto.LoginRequest;
 import com.cnpm.socialmedia.dto.PasswordDTO;
 import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.dto.UserDTO;
@@ -12,22 +13,18 @@ import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.service.email.EmailSenderService;
-import com.cnpm.socialmedia.utils.Convert;
 import com.cnpm.socialmedia.utils.EmailTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.mail.MessagingException;
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -103,8 +100,6 @@ public class RegisterController {
     }
     @PostMapping("/savePassword")
     public ResponseEntity<?> savePassword(@RequestBody PasswordDTO passwordDTO) {
-
-
         Users result = userService.validatePasswordResetToken(passwordDTO.getToken());
         if(result == null) {
 

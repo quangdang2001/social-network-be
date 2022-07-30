@@ -17,12 +17,5 @@ public class SocialmediaApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SocialmediaApplication.class, args);
 	}
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder(11);
-	}
-	@Scheduled(fixedRate = 900000L)
-	private void TurnOn(){
-		log.info("Turn on");
-	}
+
 }

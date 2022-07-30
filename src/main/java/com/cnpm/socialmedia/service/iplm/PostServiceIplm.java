@@ -2,10 +2,7 @@ package com.cnpm.socialmedia.service.iplm;
 
 import com.cloudinary.utils.ObjectUtils;
 import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
-import com.cnpm.socialmedia.dto.PostDTO;
-import com.cnpm.socialmedia.dto.PostShareDTO;
-import com.cnpm.socialmedia.dto.ResponseDTO;
-import com.cnpm.socialmedia.dto.UserDTO;
+import com.cnpm.socialmedia.dto.*;
 import com.cnpm.socialmedia.model.*;
 import com.cnpm.socialmedia.repo.ImagePostRepo;
 import com.cnpm.socialmedia.repo.PostLikeRepo;
@@ -25,6 +22,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +45,7 @@ public class PostServiceIplm implements PostService {
     private final UserService userService;
     private final CloudinaryUpload cloudinaryUpload;
     private final ImagePostRepo imagePostRepo;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     public Post save(Post post) {
@@ -53,9 +53,10 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
-    public List<PostDTO> findPostHomePage(Long userId, Integer page, Integer size) {
-        List<Users> usersFollowingId = userFollowingService.findAllIdFollowingUser(userId);
-        Users users = userService.findById(userId);
+    public List<PostDTO> findPostHomePage(Integer page, Integer size) {
+        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Users> usersFollowingId = userFollowingService.findAllIdFollowingUser(Long.valueOf(principal));
+        Users users = userService.findById(Long.valueOf(principal));
         usersFollowingId.add(users);
         Pageable pageable = PageRequest.of(page, size);
         List<Post> posts = postRepo.findAllByUsersInOrderByCreateTimeDesc(usersFollowingId, pageable);
@@ -64,17 +65,21 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
-    public List<PostDTO> findPostOfUser(Long userId, Long guestId, Integer page, Integer size) {
+    public List<PostDTO> findPostOfUser(Long userId, Integer page, Integer size) {
         List<Post> posts;
         Pageable pageable = PageRequest.of(page, size);
         Users users;
-        if (guestId.equals(-1L)) {
-            users = userService.findById(userId);
+        if (userId.equals(-1L)) {
+            String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            users = userService.findById(Long.valueOf(principal));
             posts = postRepo.findAllByUsersOrderByCreateTimeDesc(users, pageable);
             return convertPostsToPostDTOs(posts, users);
         } else {
             users = userService.findById(userId);
-            Users guest = userService.findById(guestId);
+
+            String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Users guest = userService.findById(Long.valueOf(principal));
+
             posts = postRepo.findAllByUsersOrderByCreateTimeDesc(users, pageable);
             return convertPostsToPostDTOs(posts, guest);
         }
@@ -82,9 +87,12 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
-    public NotificationPayload likePost(Long postId, Long userId) {
+    public NotificationPayload likePost(Long postId) {
         Post post = findPostById(postId);
-        Users usersProxy = userRepo.getById(userId);
+
+        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Users usersProxy = userRepo.getById(Long.valueOf(principal));
+
         NotificationPayload notificationPayload = null;
         if (post != null) {
             boolean check = postLikeRepo.findByPostIdAndUserId(post, usersProxy) != null;
@@ -93,11 +101,14 @@ public class PostServiceIplm implements PostService {
                 post.increaseLike();
                 postLikeRepo.save(postLike);
                 save(post);
-                if (!post.getUsers().getId().equals(userId)) {
+                if (!post.getUsers().getId().equals(Long.valueOf(principal))) {
                     String content = String.format("%s %s liked your post.", usersProxy.getLastName(), usersProxy.getFirstName());
                     notificationPayload =
                             Convert.convertNotificationToNotifiPayload(
                                     notificationService.sendNotificationPost(post, usersProxy, content));
+                    simpMessagingTemplate.convertAndSendToUser(notificationPayload.getUserReceiverId().toString(),
+                            "/notificationPopUp",notificationPayload);
+
                 }
             } else {
                 PostLike postLike = new PostLike(post, usersProxy);
@@ -131,7 +142,9 @@ public class PostServiceIplm implements PostService {
     @Override
     public NotificationPayload sharePost(PostDTO postDTO) {
         Post post = new Post();
-        Users userCreate = userService.findById(postDTO.getUserId());
+        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Users userCreate = userService.findById(Long.valueOf(principal));
+
         if (userCreate.isEnable()) {
             Post postParent = findPostById(postDTO.getPostSharedId());
             postParent.setCountShated(post.getCountShated() + 1);
@@ -144,7 +157,7 @@ public class PostServiceIplm implements PostService {
             save(post);
             save(postParent);
             Users users = post.getUsers();
-            if (!post.getPostShared().getUsers().getId().equals(postDTO.getUserId())) {
+            if (!post.getPostShared().getUsers().getId().equals(Long.valueOf(principal))) {
                 String content = String.format("%s %s shared your post.", users.getLastName(), users.getFirstName());
                 Notification notification = notificationService.sendNotificationPost(post.getPostShared(), userCreate, content);
                 notificationService.save(notification);
@@ -214,19 +227,22 @@ public class PostServiceIplm implements PostService {
     }
 
     @Override
-    public PostDTO findPostDTOById(Long id, Long userId) {
+    public PostDTO findPostDTOById(Long id) {
         Post post = findPostById(id);
-        Users users = userService.findById(userId);
+        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Users users = userService.findById(Long.valueOf(principal));
         return convertPostToPostDTO(post, users);
     }
 
     @Override
-    public Post saveNewPost(PostDTO postDTO) {
-        Users usersProxy = userRepo.getById(postDTO.getUserId());
+    public Post saveNewPost(PostReq postReq) {
+        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Users usersProxy = userRepo.getById(Long.parseLong(principal));
+
         Post post = null;
         if (usersProxy.isEnable()) {
             post = new Post();
-            post.setContent(postDTO.getContent());
+            post.setContent(postReq.getContent());
             post.setUsers(usersProxy);
             post.setPostShared(null);
             save(post);
