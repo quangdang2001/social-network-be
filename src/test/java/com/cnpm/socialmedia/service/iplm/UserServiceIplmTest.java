@@ -32,10 +32,7 @@ public class UserServiceIplmTest {
     private PasswordEncoder passwordEncoder;
     UserServiceIplm userService;
 
-    @BeforeEach
-    void setUp() {
-         userService = new UserServiceIplm(userRepo,verificationTokenRepo,passwordEncoder);
-    }
+
 
     @Test
     void saveRegister() {

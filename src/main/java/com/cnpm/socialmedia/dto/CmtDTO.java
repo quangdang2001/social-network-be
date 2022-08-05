@@ -13,8 +13,6 @@ public class CmtDTO {
     private Long id;
     private String content;
 
-    private Long userId;
-
     private Long postId;
     private Long cmtId;
 }

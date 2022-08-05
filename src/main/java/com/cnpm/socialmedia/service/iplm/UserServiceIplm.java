@@ -1,14 +1,21 @@
 package com.cnpm.socialmedia.service.iplm;
 
+import com.cloudinary.utils.ObjectUtils;
+import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
+import com.cnpm.socialmedia.dto.PersonalPage;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.exception.AppException;
 import com.cnpm.socialmedia.model.ModelRegister.VerificationToken;
+import com.cnpm.socialmedia.model.UserFollowing;
 import com.cnpm.socialmedia.model.Users;
 import com.cnpm.socialmedia.repo.UserRepo;
 import com.cnpm.socialmedia.repo.VerificationTokenRepo;
+import com.cnpm.socialmedia.service.Cloudinary.CloudinaryUpload;
+import com.cnpm.socialmedia.service.UserFollowingService;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Constant;
 import com.cnpm.socialmedia.utils.Convert;
+import com.cnpm.socialmedia.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.implementation.bytecode.Throw;
@@ -26,7 +33,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -38,7 +47,8 @@ public class UserServiceIplm implements UserService {
     private final UserRepo userRepo;
     private final VerificationTokenRepo verificationTokenRepo;
     private final PasswordEncoder passwordEncoder;
-
+    private final UserFollowingService userFollowingService;
+    private final CloudinaryUpload cloudinaryUpload;
 
     @Override
     public Users findById(Long id) {
@@ -188,7 +198,8 @@ public class UserServiceIplm implements UserService {
 
     @Override
     public Users updateUser(UserDTO userDTO) {
-        Users users = findById(userDTO.getId());
+        Long userId = Utils.getIdCurrentUser();
+        Users users = findById(userId);
         if (users!=null){
             if (userDTO.getFirstName()!=null && !userDTO.getFirstName().trim().equals("") ){
                 users.setFirstName(Convert.formatName(userDTO.getFirstName()));
@@ -253,6 +264,70 @@ public class UserServiceIplm implements UserService {
         }
     }
 
+    @Override
+    public NotificationPayload followUser(Long userFollowedId) {
+        Long userId = Utils.getIdCurrentUser();
+        Users users = findById(userId);
+        Users userFollowed = findById(userFollowedId);
+        UserFollowing checkFollow = userFollowingService.checkFollow(userId,userFollowedId);
+        NotificationPayload notificationPayload = null;
+        if (checkFollow == null) {
+            notificationPayload = userFollowingService.save(users,userFollowed);
+            users.setCountFollowing(users.getCountFollowing()+1);
+            userFollowed.setCountFollower(userFollowed.getCountFollower()+1);
+            save(users);
+            save(userFollowed);
+        }else {
+            userFollowingService.delete(users,userFollowed);
+            users.setCountFollowing(users.getCountFollowing()-1);
+            userFollowed.setCountFollower(userFollowed.getCountFollower()-1);
+            save(users);
+            save(userFollowed);
+        }
+        return notificationPayload;
+    }
+
+    @Override
+    public PersonalPage seePersonalPage(Long personalPageId) {
+        Long userId = Utils.getIdCurrentUser();
+        Users users = findById(personalPageId);
+        UserFollowing checkFollowing = userFollowingService.checkFollow(userId,personalPageId);
+        PersonalPage personalPage = new PersonalPage();
+        personalPage.setId(users.getId());
+        personalPage.setFirstName(users.getFirstName());
+        personalPage.setLastName(users.getLastName());
+        personalPage.setEmail(users.getEmail());
+        personalPage.setImageUrl(users.getImageUrl());
+        personalPage.setGender(users.getGender());
+        personalPage.setBio(users.getBio());
+        personalPage.setAddress(users.getAddress());
+        personalPage.setEnable(users.isEnable());
+        personalPage.setCountFollower(users.getCountFollower());
+        personalPage.setCountFollowing(users.getCountFollowing());
+        personalPage.setFollow(checkFollowing != null);
+        return personalPage;
+    }
+
+    @Override
+    public String upImageProfile(MultipartFile file) throws IOException {
+        Long userId = Utils.getIdCurrentUser();
+        Users users = findById(userId);
+        String imgUrl = users.getImageUrl();
+
+        Map params = ObjectUtils.asMap(
+                "resource_type", "auto",
+                "folder", "avatars"
+        );
+        Map map = cloudinaryUpload.cloudinary().uploader().upload(Convert.convertMultiPartToFile(file),params);
+        if (imgUrl!= null) {
+            cloudinaryUpload.cloudinary().uploader().destroy("avatars/" + cloudinaryUpload.getPublicId(imgUrl)
+                    , ObjectUtils.asMap("resource_type", "image"));
+        }
+        imgUrl = (String) map.get("secure_url");
+        users.setImageUrl(imgUrl);
+        save(users);
+        return imgUrl;
+    }
 
 
 }

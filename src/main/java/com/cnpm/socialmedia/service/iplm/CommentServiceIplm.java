@@ -14,6 +14,7 @@ import com.cnpm.socialmedia.service.NotificationService;
 import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Convert;
+import com.cnpm.socialmedia.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -64,10 +65,12 @@ public class CommentServiceIplm implements CommentService {
 
     @Override
     public CmtResponse cmtComment(CmtDTO cmtDTO){
+        Long userId = Utils.getIdCurrentUser();
+
         Comment comment = new Comment();
         Comment cmtParent = findById(cmtDTO.getCmtId());
         Post post = postService.findPostById(cmtDTO.getPostId());
-        Users users = userService.findById(cmtDTO.getUserId());
+        Users users = userService.findById(userId);
         if (users.isEnable()) {
             comment.setContent(cmtDTO.getContent());
             comment.setCommentPost(false);
@@ -80,7 +83,7 @@ public class CommentServiceIplm implements CommentService {
             save(comment);
             CmtResponse cmtDTO1 = Convert.convertCmtToRes(users, comment);
 
-            if (!cmtParent.getUsers().getId().equals(cmtDTO.getUserId())) {
+            if (!cmtParent.getUsers().getId().equals(userId)) {
                 String content = String.format("%s %s replied your comment.", users.getFirstName(), users.getLastName());
                 Notification notification = notificationService.sendNotificationPost(post, users, content);
                 NotificationPayload notificationPayload = Convert.convertNotificationToNotifiPayload(notification);
@@ -93,9 +96,12 @@ public class CommentServiceIplm implements CommentService {
 
     @Override
     public CmtResponse cmtPost(CmtDTO cmtDTO){
+
+        Long userId = Utils.getIdCurrentUser();
+
         Comment comment = new Comment();
         Post post = postService.findPostById(cmtDTO.getPostId());
-        Users users = userService.findById(cmtDTO.getUserId());
+        Users users = userService.findById(userId);
         if (users.isEnable()) {
             comment.setContent(cmtDTO.getContent());
             comment.setPost(post);
@@ -105,7 +111,7 @@ public class CommentServiceIplm implements CommentService {
             commentRepo.save(comment);
             postService.save(post);
             CmtResponse cmtDTO1 = Convert.convertCmtToRes(users, comment);
-            if (!post.getUsers().getId().equals(cmtDTO.getUserId())) {
+            if (!post.getUsers().getId().equals(userId)) {
                 String content = String.format("%s %s commented in your post.", users.getFirstName(), users.getLastName());
                 Notification notification = notificationService.sendNotificationPost(post, users, content);
                 NotificationPayload notificationPayload = Convert.convertNotificationToNotifiPayload(notification);

@@ -9,6 +9,7 @@ import com.cnpm.socialmedia.repo.MessageRepo;
 import com.cnpm.socialmedia.repo.UserRepo;
 import com.cnpm.socialmedia.service.MessageService;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.utils.Utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -35,10 +36,11 @@ public class MessageServiceIplm implements MessageService {
 
     @Override
     public MessageDTO sendMessage(MessageDTO messageDTO) {
+        Long userId = Utils.getIdCurrentUser();
         Message message = new Message();
-        if (!userRepo.existsById(messageDTO.getSenderId()) || !userRepo.existsById(messageDTO.getReceiverId()))
+        if (!userRepo.existsById(userId) || !userRepo.existsById(messageDTO.getReceiverId()))
             return null;
-        Users usersSend = userRepo.getById(messageDTO.getSenderId());
+        Users usersSend = userRepo.getById(userId);
         Users usersReceiver = userRepo.getById(messageDTO.getReceiverId());
 
         message.setMessage(messageDTO.getMessage());
@@ -46,7 +48,7 @@ public class MessageServiceIplm implements MessageService {
         message.setSender(usersSend);
         message.setReceiver(usersReceiver);
         Long receiverId = messageDTO.getReceiverId();
-        Long senderId = messageDTO.getSenderId();
+        Long senderId = userId;
         message.setRoom(getRoom(receiverId, senderId));
         messageRepo.save(message);
         messageDTO.setRoom(getRoom(receiverId, senderId));

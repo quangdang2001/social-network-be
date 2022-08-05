@@ -23,7 +23,6 @@ import java.util.Date;
 @Slf4j
 @SecurityRequirement(name = "AUTHORIZATION")
 public class PostShareController {
-    private final UserService userService;
     private final PostService postService;
     @PostMapping("/postshare")
     public ResponseEntity<?> savePostShare(@RequestBody PostDTO postDTO){

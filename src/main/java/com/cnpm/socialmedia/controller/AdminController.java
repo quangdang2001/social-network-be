@@ -30,7 +30,7 @@ public class AdminController {
 
     private final UserService userService;
     private final PostService postService;
-    private final PasswordEncoder passwordEncoder;
+
 
     @GetMapping("/user")
     public ResponseEntity<?> getUser(@RequestParam int page,
@@ -48,27 +48,7 @@ public class AdminController {
             return ResponseEntity.ok(new ResponseDTO(false,"Failed",null));
         }
     }
-    @PostMapping("/user")
-    public ResponseEntity<?> registerAdmin(@RequestBody UserDTO userDTO){
-        Users user;
-        user = userService.findUserByEmail(userDTO.getEmail());
-        if (user!=null){
-            return null;
-        }
-        user = new Users();
-        user.setFirstName(Convert.formatName(userDTO.getFirstName()));
-        user.setLastName(Convert.formatName(userDTO.getLastName()));
-        user.setAddress(userDTO.getAddress());
-        user.setBio(userDTO.getBio());
-        user.setEmail(userDTO.getEmail());
-        user.setGender(userDTO.getGender());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setBirthDay(userDTO.getBirthDay());
-        user.setEnable(true);
-        user.setRole(Constant.ROLE_ADMIN);
-        userService.save(user);
-        return ResponseEntity.ok(user);
-    }
+
 
     @GetMapping("/report/user")
     private ResponseEntity<?> getUserReported(){

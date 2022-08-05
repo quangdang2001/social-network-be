@@ -6,6 +6,7 @@ import com.cnpm.socialmedia.dto.ResponseDTO;
 import com.cnpm.socialmedia.dto.UserChatDTO;
 import com.cnpm.socialmedia.model.Message;
 import com.cnpm.socialmedia.service.MessageService;
+import com.cnpm.socialmedia.utils.Utils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +39,11 @@ public class MessageController {
     }
 
     @GetMapping("/message")
-    private ResponseEntity<?> getMessage(@RequestParam Long senderId,
-                                         @RequestParam Long receiverId,
+    private ResponseEntity<?> getMessage(@RequestParam Long receiverId,
                                          @RequestParam int page,
                                          @RequestParam int size){
-        List<MessageDTO> messageDTOList = messageService.getMessage(senderId,receiverId,page,size);
+        Long userId = Utils.getIdCurrentUser();
+        List<MessageDTO> messageDTOList = messageService.getMessage(userId,receiverId,page,size);
         return ResponseEntity.ok(new ResponseDTO(true,"Success", messageDTOList));
     }
 
@@ -55,9 +56,9 @@ public class MessageController {
         else return ResponseEntity.ok(new ResponseDTO(false,"Failed",null));
     }
     @GetMapping("/message/conversations")
-    private ResponseEntity<?> getConversations(@RequestParam Long userId,
-                                               @RequestParam int page,
+    private ResponseEntity<?> getConversations(@RequestParam int page,
                                                @RequestParam int size){
+        Long userId = Utils.getIdCurrentUser();
         List<UserChatDTO> userChatDTOS = messageService.findUserChat(userId,page,size);
         return ResponseEntity.ok(
                 new ResponseDTO(true,"Success",userChatDTOS));

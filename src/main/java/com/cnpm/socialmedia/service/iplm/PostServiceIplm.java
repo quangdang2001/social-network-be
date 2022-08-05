@@ -14,6 +14,7 @@ import com.cnpm.socialmedia.service.PostService;
 import com.cnpm.socialmedia.service.UserFollowingService;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.utils.Convert;
+import com.cnpm.socialmedia.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -138,8 +139,8 @@ public class PostServiceIplm implements PostService {
     @Override
     public NotificationPayload sharePost(PostDTO postDTO) {
         Post post = new Post();
-        String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Users userCreate = userService.findById(Long.valueOf(principal));
+        Long userId = Utils.getIdCurrentUser();
+        Users userCreate = userService.findById(userId);
 
         if (userCreate.isEnable()) {
             Post postParent = findPostById(postDTO.getPostSharedId());
@@ -153,7 +154,7 @@ public class PostServiceIplm implements PostService {
             save(post);
             save(postParent);
             Users users = post.getUsers();
-            if (!post.getPostShared().getUsers().getId().equals(Long.valueOf(principal))) {
+            if (!post.getPostShared().getUsers().getId().equals(userId)) {
                 String content = String.format("%s %s shared your post.", users.getLastName(), users.getFirstName());
                 Notification notification = notificationService.sendNotificationPost(post.getPostShared(), userCreate, content);
                 notificationService.save(notification);
