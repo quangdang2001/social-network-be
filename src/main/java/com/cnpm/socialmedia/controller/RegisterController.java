@@ -53,7 +53,7 @@ public class RegisterController {
     private final UserService userService;
     private final ApplicationEventPublisher publisher;
     private final EmailSenderService emailSenderService;
-    private final AuthenticationManager authenticationManager;
+
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO, HttpServletRequest request){
@@ -186,33 +186,8 @@ public class RegisterController {
     @PostMapping("/login")
     private ResponseEntity<?> login(@RequestBody LoginRequest loginRequest,
                                     HttpServletRequest request){
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getEmail(),
-                            loginRequest.getPassword()
-                    )
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDetailIplm user = (UserDetailIplm) authentication.getPrincipal();
-
-            Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-
-            String access_token = JWT.create()
-                    .withSubject(user.getUsers().getId().toString())
-                    .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000*6*24*15))
-                    .withIssuer(request.getRequestURL().toString())
-                    .withClaim("role",user.getUsers().getRole())
-                    .sign(algorithm);
-
-            Map<String,String> token = new HashMap<>();
-            token.put("access_token",access_token);
-            token.put("userId",user.getUsers().getId().toString());
-            token.put("role", user.getUsers().getRole());
-            return ResponseEntity.ok(token);
-        }catch (Exception e){
-            throw new AppException(403,"Access Denied");
-        }
+        return ResponseEntity.ok()
+                .body(new ResponseDTO(true, "Success", userService.login(loginRequest,request)));
     }
 
     private void resendVerificationTokenMail(String email, String applicationUrl, VerificationToken verificationToken) throws MessagingException {

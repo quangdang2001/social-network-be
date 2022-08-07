@@ -1,7 +1,10 @@
 package com.cnpm.socialmedia.service.iplm;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.cloudinary.utils.ObjectUtils;
 import com.cnpm.socialmedia.controller.ws.Payload.NotificationPayload;
+import com.cnpm.socialmedia.dto.LoginRequest;
 import com.cnpm.socialmedia.dto.PersonalPage;
 import com.cnpm.socialmedia.dto.UserDTO;
 import com.cnpm.socialmedia.exception.AppException;
@@ -13,6 +16,7 @@ import com.cnpm.socialmedia.repo.VerificationTokenRepo;
 import com.cnpm.socialmedia.service.Cloudinary.CloudinaryUpload;
 import com.cnpm.socialmedia.service.UserFollowingService;
 import com.cnpm.socialmedia.service.UserService;
+import com.cnpm.socialmedia.service.auth.UserDetailIplm;
 import com.cnpm.socialmedia.utils.Constant;
 import com.cnpm.socialmedia.utils.Convert;
 import com.cnpm.socialmedia.utils.Utils;
@@ -25,7 +29,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
@@ -49,6 +59,7 @@ public class UserServiceIplm implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserFollowingService userFollowingService;
     private final CloudinaryUpload cloudinaryUpload;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public Users findById(Long id) {
@@ -327,6 +338,41 @@ public class UserServiceIplm implements UserService {
         users.setImageUrl(imgUrl);
         save(users);
         return imgUrl;
+    }
+
+    @Override
+    public Object login(LoginRequest loginRequest, HttpServletRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
+            UserDetailIplm user = (UserDetailIplm) authentication.getPrincipal();
+            if (user.getUsers().getOauth2()!=null && user.getUsers().getOauth2() ){
+                throw new AppException(403,"Login method not supported");
+            }
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+            Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+
+            String access_token = JWT.create()
+                    .withSubject(user.getUsers().getId().toString())
+                    .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000*6*24*15))
+                    .withIssuer(request.getRequestURL().toString())
+                    .withClaim("role",user.getUsers().getRole())
+                    .sign(algorithm);
+
+            Map<String,String> token = new HashMap<>();
+            token.put("access_token",access_token);
+            token.put("userId",user.getUsers().getId().toString());
+            token.put("role", user.getUsers().getRole());
+            return token;
+        }catch (Exception e){
+            throw new AppException(403,e.getMessage());
+        }
     }
 
 

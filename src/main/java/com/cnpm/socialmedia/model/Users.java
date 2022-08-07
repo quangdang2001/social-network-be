@@ -43,6 +43,8 @@ public class Users {
     private boolean enable = false;
     private String role;
 
+    private Boolean oauth2= false;
+
     @JsonIgnore
     @OneToMany(mappedBy = "userReceiver",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notification> notifications;

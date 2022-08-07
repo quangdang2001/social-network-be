@@ -1,10 +1,11 @@
 package com.cnpm.socialmedia.config;
 
 
-
+import com.cnpm.socialmedia.config.OAuth2.OAuth2LoginSuccessHandler;
 import com.cnpm.socialmedia.fillter.UserAuthorizationFilter;
 import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.service.iplm.UserServiceIplm;
+import com.cnpm.socialmedia.service.oauth2.OAuth2UserServiceIplm;
 import com.cnpm.socialmedia.utils.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -35,7 +37,8 @@ import java.util.Arrays;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
-
+    private final OAuth2UserServiceIplm oAuth2UserServiceIplm;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private static final String[] WHITE_LIST_URLS = {
             "/api/login/**",
             "/api/registerTest",
@@ -62,6 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -74,17 +78,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/ws/**").permitAll();
         http
                 .authorizeRequests()
-                        .antMatchers("/api/**").hasAnyAuthority(Constant.ROLE_USER,Constant.ROLE_ADMIN)
-                        .antMatchers("/admin/**").hasAnyAuthority(Constant.ROLE_ADMIN);
-
+                .antMatchers("/api/**").hasAnyAuthority(Constant.ROLE_USER, Constant.ROLE_ADMIN)
+                .antMatchers("/admin/**").hasAnyAuthority(Constant.ROLE_ADMIN)
+                .and().oauth2Login()
+                .authorizationEndpoint()
+                .baseUri("/oauth2/authorize")
+                .and()
+                .redirectionEndpoint()
+                .baseUri("/oauth2/callback/*")
+                .and()
+                .userInfoEndpoint()
+                .userService(oAuth2UserServiceIplm)
+                .and()
+                .successHandler(oAuth2LoginSuccessHandler)
+                .failureHandler(new SimpleUrlAuthenticationFailureHandler());
 
         http.addFilterBefore(new UserAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(11);
     }
+
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {

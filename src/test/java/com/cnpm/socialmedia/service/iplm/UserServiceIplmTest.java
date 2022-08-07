@@ -34,23 +34,23 @@ public class UserServiceIplmTest {
 
 
 
-    @Test
-    void saveRegister() {
-        String email = "quadnag@gmail.com";
-
-        Users users = new Users(
-                null,"Quang","Dang",null, email,null,0,null,null,null,
-                0,0,0,false, null,null,null,null,null,null,null,null
-        );
-        UserDTO userDTO = new UserDTO(
-                null,"Quang","Dang", email,"ii"
-        );
-        userService.saveRegister(userDTO);
-
-        ArgumentCaptor<Users> argumentCaptor = ArgumentCaptor.forClass(Users.class);
-        verify(userRepo).save(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue()).isEqualTo(users);
-    }
+//    @Test
+//    void saveRegister() {
+//        String email = "quadnag@gmail.com";
+//
+//        Users users = new Users(
+//                null,"Quang","Dang",null, email,null,0,null,null,null,
+//                0,0,0,false, null,null,null,null,null,null,null,null
+//        );
+//        UserDTO userDTO = new UserDTO(
+//                null,"Quang","Dang", email,"ii"
+//        );
+//        userService.saveRegister(userDTO);
+//
+//        ArgumentCaptor<Users> argumentCaptor = ArgumentCaptor.forClass(Users.class);
+//        verify(userRepo).save(argumentCaptor.capture());
+//        assertThat(argumentCaptor.getValue()).isEqualTo(users);
+//    }
 
     @Test
     @Disabled

@@ -21,24 +21,24 @@ public class UserRepoTest {
     void tearDown() {
         userRepo.deleteAll();
     }
-
-    @Test
-    public void shouldSaveUser(){
-        Users users = new Users(null,"Quang","Dang",null,"quandang@gmail.com",
-                "123",1,"null","null",null,0,0,0,true,"ROLE_ADMIN",null,
-                null,null,null,null,null,null);
-        Users userSave = userRepo.save(users);
-
-        assertThat(userSave).usingRecursiveComparison().ignoringFields("id").isEqualTo(users);
-    }
-    @Test
-    public void findByName(){
-        Users users = new Users(null,"Quang","Dang",null,"quandang@gmail.com",
-                "123",1,"null","null",null,0,0,0,true,"ROLE_ADMIN",null,
-                null,null,null,null,null,null);
-        userRepo.save(users);
-        Users userSave = userRepo.findUserByEmail("quandang@gmail.com");
-        assertThat(userSave).isNotNull();
-    }
+//
+//    @Test
+//    public void shouldSaveUser(){
+//        Users users = new Users(null,"Quang","Dang",null,"quandang@gmail.com",
+//                "123",1,"null","null",null,0,0,0,true,"ROLE_ADMIN",null,
+//                null,null,null,null,null,null);
+//        Users userSave = userRepo.save(users);
+//
+//        assertThat(userSave).usingRecursiveComparison().ignoringFields("id").isEqualTo(users);
+//    }
+//    @Test
+//    public void findByName(){
+//        Users users = new Users(null,"Quang","Dang",null,"quandang@gmail.com",
+//                "123",1,"null","null",null,0,0,0,true,"ROLE_ADMIN",null,
+//                null,null,null,null,null,null);
+//        userRepo.save(users);
+//        Users userSave = userRepo.findUserByEmail("quandang@gmail.com");
+//        assertThat(userSave).isNotNull();
+//    }
 
 }
