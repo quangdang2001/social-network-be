@@ -19,6 +19,7 @@ import com.cnpm.socialmedia.service.UserService;
 import com.cnpm.socialmedia.service.auth.UserDetailIplm;
 import com.cnpm.socialmedia.utils.Constant;
 import com.cnpm.socialmedia.utils.Convert;
+import com.cnpm.socialmedia.utils.JWTProvider;
 import com.cnpm.socialmedia.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -350,20 +351,12 @@ public class UserServiceIplm implements UserService {
                     )
             );
             UserDetailIplm user = (UserDetailIplm) authentication.getPrincipal();
-            if (user.getUsers().getOauth2()!=null && user.getUsers().getOauth2() ){
+            if (user.getUsers().getProvider()!=null){
                 throw new AppException(403,"Login method not supported");
             }
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-
-            Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-
-            String access_token = JWT.create()
-                    .withSubject(user.getUsers().getId().toString())
-                    .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000*6*24*15))
-                    .withIssuer(request.getRequestURL().toString())
-                    .withClaim("role",user.getUsers().getRole())
-                    .sign(algorithm);
+            String access_token = JWTProvider.createJWT(user.getUsers(),request);
 
             Map<String,String> token = new HashMap<>();
             token.put("access_token",access_token);

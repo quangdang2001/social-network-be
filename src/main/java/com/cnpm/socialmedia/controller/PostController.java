@@ -100,7 +100,7 @@ public class PostController {
         List<PostDTO> posts;
         Long currentUserId = Utils.getIdCurrentUser();
         if (userId.equals(currentUserId))
-            posts = postService.findPostOfUser(userId,null,page,size);
+            posts = postService.findPostOfUser(userId,-1L,page,size);
         else posts = postService.findPostOfUser(userId,currentUserId,page,size);
 
         return ResponseEntity.ok(new ResponseDTO(true,"Success",posts));

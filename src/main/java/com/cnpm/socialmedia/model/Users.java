@@ -42,9 +42,7 @@ public class Users {
     private int countFollowing =0;
     private boolean enable = false;
     private String role;
-
-    private Boolean oauth2= false;
-
+    private String provider;
     @JsonIgnore
     @OneToMany(mappedBy = "userReceiver",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notification> notifications;

@@ -12,7 +12,6 @@ import java.util.Set;
 @Repository
 public interface UserRepo extends JpaRepository<Users, Long> {
     Users findUserByEmail(String email);
-
     Boolean existsByEmail(String email);
     List<Users> findAllByCountReportGreaterThan(Integer num);
     List<Users> findAllByIdIn(List<Long> userIds);
@@ -28,6 +27,5 @@ public interface UserRepo extends JpaRepository<Users, Long> {
 
     @Query("select u from Users u order by u.countFollower desc")
     List<Users> findTop10Follower(Pageable pageable);
-
 
 }
